@@ -1433,7 +1433,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
               ref={iframeRef}
               src={sandboxData.url}
               className="w-full h-full border-none"
-              title="Open Lovable Sandbox"
+              title="Happy Senses Sandbox"
               allow="clipboard-write"
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
             />
@@ -2817,7 +2817,7 @@ Focus on the key sections and content, making it clean and modern.`;
           <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 flex items-center justify-between animate-[fadeIn_0.8s_ease-out]">
             <ThemeLogo />
             <a 
-              href="https://github.com/mendableai/open-lovable" 
+              href="https://github.com/firecrawl/open-lovable" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#36322F] text-white px-3 py-2 rounded-[10px] text-sm font-medium [box-shadow:inset_0px_-2px_0px_0px_#171310,_0px_1px_6px_0px_rgba(58,_33,_8,_58%)] hover:translate-y-[1px] hover:scale-[0.98] hover:[box-shadow:inset_0px_-1px_0px_0px_#171310,_0px_1px_3px_0px_rgba(58,_33,_8,_40%)] active:translate-y-[2px] active:scale-[0.97] active:[box-shadow:inset_0px_1px_1px_0px_#171310,_0px_1px_2px_0px_rgba(58,_33,_8,_30%)] transition-all duration-200"
@@ -2833,8 +2833,8 @@ Focus on the key sections and content, making it clean and modern.`;
               {/* Firecrawl-style Header */}
               <div className="text-center">
                 <h1 className="text-[2.5rem] lg:text-[3.8rem] text-center text-[#36322F] font-semibold tracking-tight leading-[0.9] animate-[fadeIn_0.8s_ease-out]">
-                  <span className="hidden md:inline">Open Lovable</span>
-                  <span className="md:hidden">Open Lovable</span>
+                  <span className="hidden md:inline">Happy Senses</span>
+                  <span className="md:hidden">Happy Senses</span>
                 </h1>
                 <motion.p 
                   className="text-base lg:text-lg max-w-lg mx-auto mt-2.5 text-zinc-500 text-center text-balance"

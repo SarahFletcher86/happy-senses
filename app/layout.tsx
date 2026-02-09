@@ -6,8 +6,8 @@ import { ThemeProvider } from "@/app/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Open Lovable",
-  description: "Re-imagine any website in seconds with AI-powered website builder.",
+  title: "Happy Senses",
+  description: "A directory of sensory-friendly venues and experiences.",
 };
 
 export default function RootLayout({
