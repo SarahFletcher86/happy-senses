@@ -6,7 +6,13 @@ export interface CodeApplicationState {
   packages?: string[];
   installedPackages?: string[];
   filesGenerated?: string[];
+  filesCreated?: string[];
   message?: string;
+  autoCompleted?: boolean;
+  autoCompletedComponents?: string[];
+  warning?: string;
+  missingImports?: string[];
+  debug?: Record<string, unknown>;
 }
 
 interface CodeApplicationProgressProps {

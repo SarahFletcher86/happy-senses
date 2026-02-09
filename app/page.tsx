@@ -121,7 +121,7 @@ export default function AISandboxPage() {
     thinkingText?: string;
     thinkingDuration?: number;
     currentFile?: { path: string; content: string; type: string };
-    files: Array<{ path: string; content: string; type: string; completed: boolean }>;
+    files: Array<{ path: string; content: string; type: string; completed: boolean; edited?: boolean }>;
     lastProcessedPosition: number;
     isEdit?: boolean;
   }>({
@@ -532,7 +532,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
                   } else if (data.message.includes('Creating files') || data.message.includes('Applying')) {
                     setCodeApplicationState({ 
                       stage: 'applying',
-                      filesGenerated: results.filesCreated 
+                      filesGenerated: (data as any).results?.filesCreated || [] 
                     });
                   }
                   break;
@@ -627,8 +627,13 @@ Tip: I automatically detect and install npm packages from your code imports (lik
           results: finalData.results,
           explanation: finalData.explanation,
           structure: finalData.structure,
-          message: finalData.message
-        };
+          message: finalData.message,
+          autoCompleted: (finalData as any).autoCompleted,
+          autoCompletedComponents: (finalData as any).autoCompletedComponents,
+          warning: (finalData as any).warning,
+          missingImports: (finalData as any).missingImports,
+          debug: (finalData as any).debug
+        } as { success: boolean; results: any; explanation: any; structure: any; message: any; autoCompleted?: boolean; autoCompletedComponents?: string[]; warning?: string; missingImports?: string[]; debug?: Record<string, unknown> };
         
         if (data.success) {
           const { results } = data;
@@ -699,7 +704,7 @@ Tip: I automatically detect and install npm packages from your code imports (lik
           if (data.autoCompletedComponents) {
             setTimeout(() => {
               log('Auto-generated missing components:', 'info');
-              data.autoCompletedComponents.forEach((comp: string) => {
+              data.autoCompletedComponents?.forEach((comp: string) => {
                 log(`  ${comp}`, 'command');
               });
             }, 1000);
@@ -2992,7 +2997,7 @@ Focus on the key sections and content, making it clean and modern.`;
                 >
                   {appConfig.ai.availableModels.map(model => (
                     <option key={model} value={model}>
-                      {appConfig.ai.modelDisplayNames[model] || model}
+                      {appConfig.ai.modelDisplayNames[model as keyof typeof appConfig.ai.modelDisplayNames] || model}
                     </option>
                   ))}
                 </select>
@@ -3024,7 +3029,7 @@ Focus on the key sections and content, making it clean and modern.`;
           >
             {appConfig.ai.availableModels.map(model => (
               <option key={model} value={model}>
-                {appConfig.ai.modelDisplayNames[model] || model}
+                {appConfig.ai.modelDisplayNames[model as keyof typeof appConfig.ai.modelDisplayNames] || model}
               </option>
             ))}
           </select>
