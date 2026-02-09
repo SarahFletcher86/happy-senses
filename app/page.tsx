@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { appConfig } from '@/config/app.config';
 import { Button } from '@/components/ui/button';
@@ -2745,7 +2745,8 @@ Focus on the key sections and content, making it clean and modern.`;
   };
 
   return (
-    <div className="font-sans bg-background text-foreground h-screen flex flex-col">
+    <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading...</div>}>
+      <div className="font-sans bg-background text-foreground h-screen flex flex-col">
       {/* Theme Toggle */}
       <ThemeToggle />
       
@@ -3427,5 +3428,6 @@ Focus on the key sections and content, making it clean and modern.`;
 
 
     </div>
+    </Suspense>
   );
 }
