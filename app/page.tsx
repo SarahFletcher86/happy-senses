@@ -25,6 +25,25 @@ import CodeApplicationProgress, { type CodeApplicationState } from '@/components
 import { ThemeToggle } from '@/app/components/theme-toggle';
 import { ThemeLogo } from '@/app/components/theme-logo';
 
+function PageSkeleton() {
+  return (
+    <div className="h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function AISandboxPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <AISandboxContent />
+    </Suspense>
+  );
+}
+
 interface SandboxData {
   sandboxId: string;
   url: string;
@@ -44,7 +63,7 @@ interface ChatMessage {
   };
 }
 
-export default function AISandboxPage() {
+function AISandboxContent() {
   const [sandboxData, setSandboxData] = useState<SandboxData | null>(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ text: 'Not connected', active: false });
@@ -2745,8 +2764,7 @@ Focus on the key sections and content, making it clean and modern.`;
   };
 
   return (
-    <Suspense fallback={<div className="h-screen flex items-center justify-center">Loading...</div>}>
-      <div className="font-sans bg-background text-foreground h-screen flex flex-col">
+    <div className="font-sans bg-background text-foreground h-screen flex flex-col">
       {/* Theme Toggle */}
       <ThemeToggle />
       
@@ -3428,6 +3446,5 @@ Focus on the key sections and content, making it clean and modern.`;
 
 
     </div>
-    </Suspense>
   );
 }
