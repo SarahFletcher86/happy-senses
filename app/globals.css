@@ -1,4 +1,15 @@
 @import "tailwindcss";
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/woff/OpenDyslexic-Regular.woff') format('woff');
+  font-display: swap;
+}
+
+.font-title { font-family: 'Poppins', sans-serif; }
+.font-subtitle { font-family: 'Quicksand', sans-serif; }
+.font-quote { font-family: 'Pacifico', cursive; }
+.font-body { font-family: 'OpenDyslexic', Arial, sans-serif; }
+
 
 @keyframes slide {
   0% { transform: translate(0, 0); }

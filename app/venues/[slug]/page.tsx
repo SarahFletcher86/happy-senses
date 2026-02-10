@@ -25,7 +25,7 @@ interface VenueDetailPageProps {
 
 // Generate static params for all venues
 export async function generateStaticParams() {
-  const venues = loadVenues();
+  const venues = await loadVenues();
   return venues.map((venue) => ({
     slug: venue.slug,
   }));
@@ -55,7 +55,7 @@ function getVenueNotes(slug: string): VenueNote[] {
 
 export default async function VenueDetailPage({ params }: VenueDetailPageProps) {
   const { slug } = await params;
-  const venue = getVenueBySlug(slug);
+  const venue = await getVenueBySlug(slug);
   
   if (!venue) {
     notFound();
