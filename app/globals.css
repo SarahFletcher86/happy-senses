@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @keyframes slide {
   0% { transform: translate(0, 0); }
@@ -509,22 +511,10 @@
 
 @layer base {
   * {
-    border-color: theme('colors.border');
+    @apply border-border;
   }
   body {
-    background-color: theme('colors.background');
-    color: theme('colors.foreground');
-  }
-  
-  /* Dark mode overrides for common elements */
-  .dark {
-    background-color: theme('colors.background');
-    color: theme('colors.foreground');
-  }
-  
-  /* Ensure dark mode applies to all elements */
-  .dark * {
-    border-color: theme('colors.border');
+    @apply bg-background text-foreground;
   }
 }
 
