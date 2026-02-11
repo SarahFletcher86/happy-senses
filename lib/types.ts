@@ -29,8 +29,8 @@ export interface VenueCore {
   description: string;
   city: string;
   address: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
   website: string;
   phone: string;
   email: string;

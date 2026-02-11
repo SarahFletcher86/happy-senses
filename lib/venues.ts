@@ -4,17 +4,66 @@
  */
 
 import { parse } from 'csv-parse/sync';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import 'server-only';
 import type {
   Venue,
   RawVenueRow,
   EquipmentHeight,
   SensoryCertification,
 } from './types';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { z } from 'zod';
+
+const VENUES_CSV_URL =
+  process.env.VENUES_CSV_URL ||
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZRmCwJEGzut93nuw3XA9cbBN6WXXvPYQ9fENg1n5GWvDHdSZ9gzWhr1Dy6Yb3I34MEsQzTAHsG_Ye/pub?output=csv';
 
 // Cache for loaded venues (avoids re-parsing on every request)
 let venuesCache: Venue[] | null = null;
+let venuesPromise: Promise<Venue[]> | null = null;
+
+const sensoryCertificationValues = [
+  'autism-friendly',
+  'sensory-friendly',
+  'inclusive',
+  'accessibility-certified',
+  'verified',
+] as const;
+
+const equipmentHeightValues = ['toddler', 'low', 'medium', 'high', 'various'] as const;
+
+const venueSchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  category: z.string().min(1),
+  description: z.string(),
+  city: z.string(),
+  address: z.string(),
+  lat: z.number().nullable(),
+  lng: z.number().nullable(),
+  website: z.string(),
+  phone: z.string(),
+  email: z.string(),
+  image_url: z.string(),
+  sens_noise_1to5: z.number().nullable(),
+  sens_light_1to5: z.number().nullable(),
+  sens_crowd_1to5: z.number().nullable(),
+  sens_quiet_room: z.boolean().nullable(),
+  sens_headphones: z.boolean().nullable(),
+  sens_staff_trained: z.boolean().nullable(),
+  sens_certification: z.enum(sensoryCertificationValues).optional(),
+  sens_last_verified: z.string().nullable(),
+  sens_score_avg: z.number().nullable(),
+  ai_accessibility_summary: z.string().nullable(),
+  accessible: z.boolean().nullable(),
+  fenced: z.boolean().nullable(),
+  near_water: z.boolean().nullable(),
+  equipment_height: z.enum(equipmentHeightValues).optional(),
+  upvotes: z.number(),
+  downvotes: z.number(),
+  notes_count: z.number(),
+});
 
 /**
  * Parse a string value safely, returning empty string for invalid values
@@ -48,7 +97,7 @@ function parseBoolean(value: string | null | undefined): boolean | null {
 function parseEquipmentHeight(value: string | null | undefined): EquipmentHeight {
   if (!value || value.trim() === '' || value === 'NaN' || value === 'undefined') return undefined;
   const lower = value.toLowerCase().trim();
-  if (['toddler', 'low', 'medium', 'high', 'various'].includes(lower)) {
+  if (equipmentHeightValues.includes(lower as EquipmentHeight)) {
     return lower as EquipmentHeight;
   }
   return undefined;
@@ -60,7 +109,7 @@ function parseEquipmentHeight(value: string | null | undefined): EquipmentHeight
 function parseCertification(value: string | null | undefined): SensoryCertification {
   if (!value || value.trim() === '' || value === 'NaN' || value === 'undefined') return undefined;
   const lower = value.toLowerCase().trim();
-  if (['autism-friendly', 'sensory-friendly', 'inclusive', 'accessibility-certified', 'verified'].includes(lower)) {
+  if (sensoryCertificationValues.includes(lower as SensoryCertification)) {
     return lower as SensoryCertification;
   }
   return undefined;
@@ -129,6 +178,32 @@ export function computeOverallScore(venue: Partial<Venue>): number {
   return Math.max(0, Math.min(100, score));
 }
 
+function validateVenue(venue: Venue): Venue | null {
+  const result = venueSchema.safeParse(venue);
+  if (!result.success) {
+    return null;
+  }
+  return result.data;
+}
+
+async function loadCsvContent(): Promise<string> {
+  try {
+    const response = await fetch(VENUES_CSV_URL, {
+      next: { revalidate: 3600 },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch venues CSV: ${response.status}`);
+    }
+
+    return await response.text();
+  } catch (error) {
+    console.warn('[venues] Failed to fetch remote CSV, falling back to local file.', error);
+    const csvPath = join(process.cwd(), 'data', 'venues.csv');
+    return readFileSync(csvPath, 'utf-8');
+  }
+}
+
 /**
  * Parse a single raw CSV row into a Venue object
  */
@@ -141,8 +216,8 @@ function parseVenueRow(row: RawVenueRow): Venue {
     description: parseString(row.description),
     city: parseString(row.city),
     address: parseString(row.address),
-    lat: parseNumber(row.lat) ?? 0,
-    lng: parseNumber(row.lng) ?? 0,
+    lat: parseNumber(row.lat),
+    lng: parseNumber(row.lng),
     website: parseString(row.website),
     phone: parseString(row.phone),
     email: parseString(row.email),
@@ -156,7 +231,7 @@ function parseVenueRow(row: RawVenueRow): Venue {
     sens_headphones: parseBoolean(row.sens_headphones),
     sens_staff_trained: parseBoolean(row.sens_staff_trained),
     sens_certification: parseCertification(row.sens_certification),
-    sens_last_verified: parseString(row.sens_last_verified),
+    sens_last_verified: parseString(row.sens_last_verified) || null,
     sens_score_avg: parseNumber(row.sens_score_avg) ?? computeOverallScore({
       sens_noise_1to5: parseNumber(row.sens_noise_1to5),
       sens_light_1to5: parseNumber(row.sens_light_1to5),
@@ -168,7 +243,7 @@ function parseVenueRow(row: RawVenueRow): Venue {
       near_water: null,
       fenced: null,
     }),
-    ai_accessibility_summary: parseString(row['AI Sensory Accessibility Summary'] || row.sens_accessibility_summary),
+    ai_accessibility_summary: parseString(row['AI Sensory Accessibility Summary'] || row.sens_accessibility_summary) || null,
     
     // Accessibility fields (defaults for now, can be populated from CSV)
     accessible: null,
@@ -187,43 +262,61 @@ function parseVenueRow(row: RawVenueRow): Venue {
  * Load all venues from the CSV file
  * Cached for performance
  */
-export function loadVenues(): Venue[] {
+export async function loadVenues(): Promise<Venue[]> {
   if (venuesCache) {
     return venuesCache;
   }
 
-  try {
-    const csvPath = join(process.cwd(), 'data', 'venues.csv');
-    const csvContent = readFileSync(csvPath, 'utf-8');
-    
-    const records = parse(csvContent, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-    }) as RawVenueRow[];
-    
-    venuesCache = records.map(parseVenueRow);
-    
-    return venuesCache;
-  } catch (error) {
-    console.error('Error loading venues CSV:', error);
-    return [];
+  if (!venuesPromise) {
+    venuesPromise = (async () => {
+      try {
+        const csvContent = await loadCsvContent();
+        const records = parse(csvContent, {
+          columns: true,
+          skip_empty_lines: true,
+          trim: true,
+        }) as RawVenueRow[];
+
+        let skipped = 0;
+        const validated: Venue[] = [];
+
+        for (const record of records) {
+          const venue = parseVenueRow(record);
+          const validatedVenue = validateVenue(venue);
+          if (validatedVenue) {
+            validated.push(validatedVenue);
+          } else {
+            skipped += 1;
+          }
+        }
+
+        venuesCache = validated;
+        console.info(`[venues] Loaded ${validated.length} venues. Skipped ${skipped} invalid rows.`);
+        return venuesCache;
+      } catch (error) {
+        console.error('Error loading venues CSV:', error);
+        venuesCache = [];
+        return venuesCache;
+      }
+    })();
   }
+
+  return venuesPromise;
 }
 
 /**
  * Get a single venue by slug
  */
-export function getVenueBySlug(slug: string): Venue | null {
-  const venues = loadVenues();
+export async function getVenueBySlug(slug: string): Promise<Venue | null> {
+  const venues = await loadVenues();
   return venues.find(v => v.slug === slug) || null;
 }
 
 /**
  * Get all unique categories from venues
  */
-export function getCategories(): string[] {
-  const venues = loadVenues();
+export async function getCategories(): Promise<string[]> {
+  const venues = await loadVenues();
   const categories = new Set(venues.map(v => v.category));
   return Array.from(categories).sort();
 }
@@ -231,8 +324,8 @@ export function getCategories(): string[] {
 /**
  * Get all unique cities from venues
  */
-export function getCities(): string[] {
-  const venues = loadVenues();
+export async function getCities(): Promise<string[]> {
+  const venues = await loadVenues();
   const cities = new Set(venues.filter(v => v.city).map(v => v.city));
   return Array.from(cities).sort();
 }

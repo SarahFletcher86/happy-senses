@@ -11,13 +11,13 @@ interface HomePageProps {
   };
 }
 
-export default function HomePage({ searchParams }: HomePageProps) {
+export default async function HomePage({ searchParams }: HomePageProps) {
   const params = searchParams ?? {};
   
   // Load all venues
-  const allVenues = loadVenues();
-  const categories = getCategories();
-  const cities = getCities();
+  const allVenues = await loadVenues();
+  const categories = await getCategories();
+  const cities = await getCities();
   
   // Build filters from URL params
   const filters: VenueFilters = {
