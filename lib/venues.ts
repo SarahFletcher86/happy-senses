@@ -3,14 +3,9 @@
  * Server-side CSV parsing and venue data management
  */
 
-import { parse } from 'csv-parse/sync';
+import Papa from 'papaparse';
 import 'server-only';
-import type {
-  Venue,
-  RawVenueRow,
-  EquipmentHeight,
-  SensoryCertification,
-} from './types';
+import type { Venue, EquipmentHeight, SensoryCertification } from './types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { z } from 'zod';
@@ -33,87 +28,81 @@ const sensoryCertificationValues = [
 
 const equipmentHeightValues = ['toddler', 'low', 'medium', 'high', 'various'] as const;
 
-const venueSchema = z.object({
-  name: z.string().min(1),
-  slug: z.string().min(1),
-  category: z.string().min(1),
-  description: z.string(),
-  city: z.string(),
-  address: z.string(),
-  lat: z.number().nullable(),
-  lng: z.number().nullable(),
-  website: z.string(),
-  phone: z.string(),
-  email: z.string(),
-  image_url: z.string(),
-  sens_noise_1to5: z.number().nullable(),
-  sens_light_1to5: z.number().nullable(),
-  sens_crowd_1to5: z.number().nullable(),
-  sens_quiet_room: z.boolean().nullable(),
-  sens_headphones: z.boolean().nullable(),
-  sens_staff_trained: z.boolean().nullable(),
-  sens_certification: z.enum(sensoryCertificationValues).optional(),
-  sens_last_verified: z.string().nullable(),
-  sens_score_avg: z.number().nullable(),
-  ai_accessibility_summary: z.string().nullable(),
-  accessible: z.boolean().nullable(),
-  fenced: z.boolean().nullable(),
-  near_water: z.boolean().nullable(),
-  equipment_height: z.enum(equipmentHeightValues).optional(),
-  upvotes: z.number(),
-  downvotes: z.number(),
-  notes_count: z.number(),
-});
+const toStr = (value: unknown): string => {
+  const str = String(value ?? '').trim();
+  if (!str || str === 'NaN' || str === 'undefined') return '';
+  return str;
+};
 
-/**
- * Parse a string value safely, returning empty string for invalid values
- */
-function parseString(value: string | null | undefined): string {
-  if (!value || value.trim() === '' || value === 'NaN') return '';
-  return value.trim();
-}
+const toBool = (value: unknown): boolean | null => {
+  const str = String(value ?? '').trim().toLowerCase();
+  if (!str || str === 'nan' || str === 'undefined') return null;
+  return str === 'true' || str === '1' || str === 'yes' || str === 'y' || str === '✅';
+};
 
-/**
- * Parse a number safely, returning null for invalid values
- */
-function parseNumber(value: string | null | undefined): number | null {
-  if (!value || value.trim() === '' || value === 'NaN' || value === 'undefined') return null;
-  const num = parseFloat(value);
-  return isNaN(num) ? null : num;
-}
+const toNum = (value: unknown): number | null => {
+  const str = String(value ?? '').trim();
+  if (!str || str === 'NaN' || str === 'undefined') return null;
+  const num = Number(str);
+  return Number.isFinite(num) ? num : null;
+};
 
-/**
- * Parse a boolean safely from various CSV representations
- */
-function parseBoolean(value: string | null | undefined): boolean | null {
-  if (!value || value.trim() === '' || value === 'NaN' || value === 'undefined') return null;
-  const lower = value.toLowerCase().trim();
-  return lower === 'true' || lower === 'yes' || lower === '1' || lower === '✅';
-}
+const toNumDefault = (fallback: number) => (value: unknown) => {
+  const num = toNum(value);
+  return num === null ? fallback : num;
+};
 
-/**
- * Parse equipment height enum
- */
-function parseEquipmentHeight(value: string | null | undefined): EquipmentHeight {
-  if (!value || value.trim() === '' || value === 'NaN' || value === 'undefined') return undefined;
-  const lower = value.toLowerCase().trim();
-  if (equipmentHeightValues.includes(lower as EquipmentHeight)) {
-    return lower as EquipmentHeight;
-  }
-  return undefined;
-}
-
-/**
- * Parse sensory certification
- */
-function parseCertification(value: string | null | undefined): SensoryCertification {
-  if (!value || value.trim() === '' || value === 'NaN' || value === 'undefined') return undefined;
-  const lower = value.toLowerCase().trim();
+const toCertification = (value: unknown): SensoryCertification | undefined => {
+  const lower = toStr(value).toLowerCase();
+  if (!lower) return undefined;
   if (sensoryCertificationValues.includes(lower as SensoryCertification)) {
     return lower as SensoryCertification;
   }
   return undefined;
-}
+};
+
+const toEquipmentHeight = (value: unknown): EquipmentHeight => {
+  const lower = toStr(value).toLowerCase();
+  if (!lower) return undefined;
+  if (equipmentHeightValues.includes(lower as EquipmentHeight)) {
+    return lower as EquipmentHeight;
+  }
+  return undefined;
+};
+
+const toCategory = (value: unknown): string => normalizeCategory(toStr(value));
+
+const VenueSchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  category: z.preprocess(toCategory, z.string()),
+  description: z.preprocess(toStr, z.string()),
+  city: z.preprocess(toStr, z.string()),
+  address: z.preprocess(toStr, z.string()),
+  website: z.preprocess(toStr, z.string()),
+  phone: z.preprocess(toStr, z.string()),
+  email: z.preprocess(toStr, z.string()),
+  image_url: z.preprocess(toStr, z.string()),
+  lat: z.preprocess(toNum, z.number().nullable()),
+  lng: z.preprocess(toNum, z.number().nullable()),
+  sens_noise_1to5: z.preprocess(toNum, z.number().min(1).max(5).nullable()),
+  sens_light_1to5: z.preprocess(toNum, z.number().min(1).max(5).nullable()),
+  sens_crowd_1to5: z.preprocess(toNum, z.number().min(1).max(5).nullable()),
+  sens_quiet_room: z.preprocess(toBool, z.boolean().nullable()),
+  sens_headphones: z.preprocess(toBool, z.boolean().nullable()),
+  sens_staff_trained: z.preprocess(toBool, z.boolean().nullable()),
+  sens_certification: z.preprocess(toCertification, z.enum(sensoryCertificationValues).optional()),
+  sens_last_verified: z.preprocess(toStr, z.string().nullable()),
+  sens_score_avg: z.preprocess(toNum, z.number().min(0).max(100).nullable()),
+  ai_accessibility_summary: z.preprocess(toStr, z.string().nullable()),
+  accessible: z.preprocess(toBool, z.boolean().nullable()),
+  fenced: z.preprocess(toBool, z.boolean().nullable()),
+  near_water: z.preprocess(toBool, z.boolean().nullable()),
+  equipment_height: z.preprocess(toEquipmentHeight, z.enum(equipmentHeightValues).optional()),
+  upvotes: z.preprocess(toNumDefault(0), z.number().min(0)),
+  downvotes: z.preprocess(toNumDefault(0), z.number().min(0)),
+  notes_count: z.preprocess(toNumDefault(0), z.number().min(0)),
+});
 
 /**
  * Normalize category names (handle variations)
@@ -178,14 +167,6 @@ export function computeOverallScore(venue: Partial<Venue>): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function validateVenue(venue: Venue): Venue | null {
-  const result = venueSchema.safeParse(venue);
-  if (!result.success) {
-    return null;
-  }
-  return result.data;
-}
-
 async function loadCsvContent(): Promise<string> {
   try {
     const response = await fetch(VENUES_CSV_URL, {
@@ -204,57 +185,69 @@ async function loadCsvContent(): Promise<string> {
   }
 }
 
-/**
- * Parse a single raw CSV row into a Venue object
- */
-function parseVenueRow(row: RawVenueRow): Venue {
+function parseCsvVenues(csvText: string): {
+  venues: Venue[];
+  totalRows: number;
+  validRows: number;
+} {
+  const parsed = Papa.parse<Record<string, unknown>>(csvText, {
+    header: true,
+    skipEmptyLines: true,
+  });
+
+  const rows = Array.isArray(parsed.data) ? parsed.data : [];
+  const venues: Venue[] = [];
+
+  for (const row of rows) {
+    const normalizedRow = {
+      name: row.name,
+      slug: row.slug,
+      category: row.category,
+      description: row.description,
+      city: row.city,
+      address: row.address,
+      website: row.website,
+      phone: row.phone,
+      email: row.email,
+      image_url: row.image_url,
+      lat: row.lat,
+      lng: row.lng,
+      sens_noise_1to5: row.sens_noise_1to5,
+      sens_light_1to5: row.sens_light_1to5,
+      sens_crowd_1to5: row.sens_crowd_1to5,
+      sens_quiet_room: row.sens_quiet_room,
+      sens_headphones: row.sens_headphones,
+      sens_staff_trained: row.sens_staff_trained,
+      sens_certification: row.sens_certification,
+      sens_last_verified: row.sens_last_verified,
+      sens_score_avg: row.sens_score_avg,
+      ai_accessibility_summary:
+        row['AI Sensory Accessibility Summary'] ??
+        row.sens_accessibility_summary ??
+        row.ai_accessibility_summary,
+      accessible: row.accessible_playground ?? row.accessible,
+      fenced: row.fenced_in ?? row.fenced,
+      near_water: row.near_water,
+      equipment_height: row.equipment_height,
+      upvotes: row.upvotes ?? 0,
+      downvotes: row.downvotes ?? 0,
+      notes_count: row.notes_count ?? 0,
+    };
+
+    const result = VenueSchema.safeParse(normalizedRow);
+    if (result.success) {
+      const venue = result.data;
+      if (venue.sens_score_avg === null) {
+        venue.sens_score_avg = computeOverallScore(venue);
+      }
+      venues.push(venue);
+    }
+  }
+
   return {
-    // Core fields
-    name: parseString(row.name),
-    slug: parseString(row.slug),
-    category: normalizeCategory(parseString(row.category)),
-    description: parseString(row.description),
-    city: parseString(row.city),
-    address: parseString(row.address),
-    lat: parseNumber(row.lat),
-    lng: parseNumber(row.lng),
-    website: parseString(row.website),
-    phone: parseString(row.phone),
-    email: parseString(row.email),
-    image_url: parseString(row.image_url),
-    
-    // Sensory fields
-    sens_noise_1to5: parseNumber(row.sens_noise_1to5),
-    sens_light_1to5: parseNumber(row.sens_light_1to5),
-    sens_crowd_1to5: parseNumber(row.sens_crowd_1to5),
-    sens_quiet_room: parseBoolean(row.sens_quiet_room),
-    sens_headphones: parseBoolean(row.sens_headphones),
-    sens_staff_trained: parseBoolean(row.sens_staff_trained),
-    sens_certification: parseCertification(row.sens_certification),
-    sens_last_verified: parseString(row.sens_last_verified) || null,
-    sens_score_avg: parseNumber(row.sens_score_avg) ?? computeOverallScore({
-      sens_noise_1to5: parseNumber(row.sens_noise_1to5),
-      sens_light_1to5: parseNumber(row.sens_light_1to5),
-      sens_crowd_1to5: parseNumber(row.sens_crowd_1to5),
-      sens_quiet_room: parseBoolean(row.sens_quiet_room),
-      sens_headphones: parseBoolean(row.sens_headphones),
-      sens_staff_trained: parseBoolean(row.sens_staff_trained),
-      sens_certification: parseCertification(row.sens_certification),
-      near_water: null,
-      fenced: null,
-    }),
-    ai_accessibility_summary: parseString(row['AI Sensory Accessibility Summary'] || row.sens_accessibility_summary) || null,
-    
-    // Accessibility fields (defaults for now, can be populated from CSV)
-    accessible: null,
-    fenced: null,
-    near_water: null,
-    equipment_height: undefined,
-    
-    // Community fields
-    upvotes: 0,
-    downvotes: 0,
-    notes_count: 0,
+    venues,
+    totalRows: rows.length,
+    validRows: venues.length,
   };
 }
 
@@ -271,27 +264,10 @@ export async function loadVenues(): Promise<Venue[]> {
     venuesPromise = (async () => {
       try {
         const csvContent = await loadCsvContent();
-        const records = parse(csvContent, {
-          columns: true,
-          skip_empty_lines: true,
-          trim: true,
-        }) as RawVenueRow[];
-
-        let skipped = 0;
-        const validated: Venue[] = [];
-
-        for (const record of records) {
-          const venue = parseVenueRow(record);
-          const validatedVenue = validateVenue(venue);
-          if (validatedVenue) {
-            validated.push(validatedVenue);
-          } else {
-            skipped += 1;
-          }
-        }
-
-        venuesCache = validated;
-        console.info(`[venues] Loaded ${validated.length} venues. Skipped ${skipped} invalid rows.`);
+        const { venues, totalRows, validRows } = parseCsvVenues(csvContent);
+        const skipped = Math.max(0, totalRows - validRows);
+        venuesCache = venues;
+        console.info(`[venues] Loaded ${validRows} venues. Skipped ${skipped} invalid rows.`);
         return venuesCache;
       } catch (error) {
         console.error('Error loading venues CSV:', error);
