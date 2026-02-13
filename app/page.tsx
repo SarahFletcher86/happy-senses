@@ -1,7 +1,6 @@
-import { loadVenues, getCategories, getCities, filterVenues, sortVenues } from '@/lib/venues';
+import { loadVenues, getCategories, getCities } from '@/lib/venues';
+import { DirectoryClient } from '@/components/venues/DirectoryClient';
 import { DirectoryHeader } from '@/components/venues/DirectoryHeader';
-import { DirectoryFilters } from '@/components/venues/DirectoryFilters';
-import { VenueCardGrid } from '@/components/venues/VenueCardGrid';
 import type { VenueFilters, SortOption } from '@/lib/types';
 
 interface HomePageProps {
@@ -37,47 +36,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   
   const sortBy: SortOption = (params.sort as SortOption) || 'sensory_score';
   
-  // Filter and sort venues
-  const filteredVenues = filterVenues(allVenues, filters);
-  const sortedVenues = sortVenues(filteredVenues, sortBy);
-  
   return (
     <main className="min-h-screen bg-gray-50">
-      <DirectoryHeader venueCount={sortedVenues.length} />
-      
+      <DirectoryHeader venueCount={allVenues.length} />
+
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <DirectoryFilters
-          search={filters.search}
-          setSearch={() => {}}
-          category={filters.category}
-          setCategory={() => {}}
-          city={filters.city}
-          setCity={() => {}}
-          sortBy={sortBy}
-          setSortBy={() => {}}
+        <DirectoryClient
+          initialVenues={allVenues}
           categories={categories}
           cities={cities}
-          filters={{
-            sensory_friendly: null,
-            quiet_room: null,
-            headphones: null,
-            staff_trained: null,
-            accessible: null,
-            fenced: null,
-            not_near_water: null,
-          }}
-          setFilters={() => {}}
-          venueCount={sortedVenues.length}
+          initialFilters={filters}
+          initialSortBy={sortBy}
         />
-        
-        <VenueCardGrid venues={sortedVenues} />
-        
-        {sortedVenues.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-gray-500 text-lg">No venues found matching your criteria.</p>
-            <p className="text-gray-400 text-sm mt-2">Try adjusting your filters or search terms.</p>
-          </div>
-        )}
       </div>
     </main>
   );
