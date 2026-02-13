@@ -12,16 +12,16 @@ const quickExploreLinks = [
 
 export function QuickExploreBar() {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200/70 bg-white/70 px-3.5 py-3 text-sm text-slate-600 shadow-sm backdrop-blur dark:border-slate-700/60 dark:bg-slate-900/60 dark:text-slate-300 dark:shadow-none">
-        <span className="mr-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-          Quick explore
-        </span>
+    <div className="max-w-7xl mx-auto px-4 mt-6 mb-4 space-y-2">
+      <div className="text-xs uppercase tracking-widest text-muted-foreground/70">
+        Quick explore
+      </div>
+      <div className="flex flex-nowrap items-center gap-2 overflow-x-auto py-1 pr-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {quickExploreLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="rounded-full border border-slate-200/70 bg-slate-50/80 px-3 py-1 text-xs font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-white hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-200 dark:border-slate-700/60 dark:bg-slate-800/60 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-800/90 dark:hover:text-white dark:focus-visible:ring-slate-700"
+            className="shrink-0 rounded-full border border-slate-200/70 bg-white/80 px-3 py-1.5 text-sm text-slate-700 shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white hover:shadow active:translate-y-0 active:border-teal-200 active:bg-teal-50 active:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-100 dark:border-slate-700/50 dark:bg-slate-900/40 dark:text-slate-200 dark:shadow-none dark:hover:bg-slate-900/60 dark:hover:border-slate-600/70 dark:active:border-teal-400/30 dark:active:bg-teal-500/10 aria-disabled:cursor-not-allowed aria-disabled:opacity-50 aria-disabled:shadow-none"
           >
             {link.label}
           </Link>
