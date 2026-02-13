@@ -13,15 +13,15 @@ const quickExploreLinks = [
 export function QuickExploreBar() {
   return (
     <div className="max-w-7xl mx-auto px-4 mt-6 mb-4 space-y-2">
-      <div className="text-xs uppercase tracking-widest text-muted-foreground/70">
+      <div className="text-xs uppercase tracking-widest text-[color:var(--muted)] opacity-70">
         Quick explore
       </div>
-      <div className="flex flex-wrap items-center gap-3 mt-2">
+      <div className="flex flex-wrap items-center gap-2.5 mt-2">
         {quickExploreLinks.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className="shrink-0 rounded-full px-4 py-2 text-sm font-medium bg-white/70 backdrop-blur-sm border border-[hsl(210,18%,85%)] text-[hsl(210,30%,25%)] hover:bg-white hover:border-[hsl(180,30%,70%)] transition-all duration-200"
+            className="shrink-0 rounded-full border border-[color:var(--border)] bg-white/70 px-3.5 py-1.5 text-sm font-medium text-[color:var(--text)] shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:border-[hsl(180_30%_70%)] hover:bg-white/90 hover:shadow-[0_2px_6px_rgba(15,23,42,0.06)] aria-[current=page]:border-[hsl(182_40%_70%)] aria-[current=page]:bg-[hsl(182_45%_94%)] dark:border-[color:var(--border)] dark:bg-[hsl(210_18%_12%)] dark:text-[color:var(--text)] dark:shadow-none dark:hover:bg-[hsl(210_18%_16%)] dark:hover:border-[hsl(210_12%_36%)] dark:aria-[current=page]:border-[hsl(182_40%_40%)] dark:aria-[current=page]:bg-[hsl(182_40%_18%)]"
           >
             {link.label}
           </Link>

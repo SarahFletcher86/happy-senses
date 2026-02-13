@@ -42,27 +42,27 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
     <Link
       href={`/venues/${venue.slug}`}
       className={cn(
-        'block bg-white rounded-xl border border-gray-200 shadow-sm',
-        'hover:shadow-md hover:border-gray-300 transition-all duration-200',
+        'block rounded-xl border border-[color:var(--border)]/80 bg-[color:var(--surface)] shadow-[0_2px_10px_rgba(15,23,42,0.06)]',
+        'hover:shadow-[0_8px_18px_rgba(15,23,42,0.08)] hover:border-[color:var(--border)] transition-all duration-200',
         'overflow-hidden group'
       )}
     >
       {/* Header with score and category */}
-      <div className="flex items-start justify-between p-4 pb-3 border-b border-gray-100">
+      <div className="flex items-start justify-between p-4 pb-3 border-b border-[color:var(--border)]/60">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className={cn(
               'px-2 py-0.5 rounded-full text-xs font-medium',
-              venue.category === 'Park' ? 'bg-green-100 text-green-700' :
-              venue.category === 'Community Centre' ? 'bg-blue-100 text-blue-700' :
-              venue.category === 'Museum' ? 'bg-purple-100 text-purple-700' :
-              venue.category === 'Library' ? 'bg-yellow-100 text-yellow-700' :
-              'bg-gray-100 text-gray-700'
+              venue.category === 'Park' ? 'bg-[hsl(150_35%_92%)] text-[hsl(150_35%_30%)] dark:bg-[hsl(150_20%_18%)] dark:text-[hsl(150_30%_80%)]' :
+              venue.category === 'Community Centre' ? 'bg-[hsl(200_45%_92%)] text-[hsl(200_35%_30%)] dark:bg-[hsl(200_20%_18%)] dark:text-[hsl(200_30%_80%)]' :
+              venue.category === 'Museum' ? 'bg-[hsl(22_70%_92%)] text-[hsl(22_45%_32%)] dark:bg-[hsl(22_25%_20%)] dark:text-[hsl(22_45%_80%)]' :
+              venue.category === 'Library' ? 'bg-[hsl(38_65%_90%)] text-[hsl(38_45%_32%)] dark:bg-[hsl(38_25%_20%)] dark:text-[hsl(38_45%_80%)]' :
+              'bg-[hsl(210_25%_94%)] text-[hsl(210_15%_35%)] dark:bg-[hsl(210_16%_20%)] dark:text-[hsl(210_14%_82%)]'
             )}>
               {venue.category}
             </span>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
+          <h3 className="text-lg font-semibold text-[color:var(--text)] group-hover:text-[hsl(182_40%_35%)] transition-colors truncate">
             {venue.name}
           </h3>
         </div>
@@ -72,24 +72,24 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
           <div className={cn('flex items-center gap-1 px-2 py-1 rounded-lg text-white text-sm font-bold', getScoreColor(score))}>
             <span>{score}</span>
           </div>
-          <span className="text-xs text-gray-500">{getScoreLabel(score)}</span>
+          <span className="text-xs text-[color:var(--muted)]">{getScoreLabel(score)}</span>
         </div>
       </div>
 
       {/* Location */}
-      <div className="px-4 py-2 flex items-center gap-1.5 text-sm text-gray-600">
-        <MapPin className="w-4 h-4 flex-shrink-0 text-gray-400" />
+      <div className="px-4 py-2 flex items-center gap-1.5 text-sm text-[color:var(--muted)]">
+        <MapPin className="w-4 h-4 flex-shrink-0 text-[color:var(--muted)]/70" />
         {(venue.city || venue.address) ? (
           <span className="truncate">
             {venue.city}{venue.city && venue.address && ' - '}{venue.address}
           </span>
         ) : (
-          <span className="text-gray-400">Location available</span>
+          <span className="text-[color:var(--muted)]/70">Location available</span>
         )}
       </div>
 
       {/* Sensory Badges */}
-      <div className="px-4 py-2 border-t border-gray-100">
+      <div className="px-4 py-2 border-t border-[color:var(--border)]/60">
         <div className="flex flex-wrap gap-1.5">
           <SensoryBadge type="noise" value={venue.sens_noise_1to5} showLabel={false} />
           <SensoryBadge type="light" value={venue.sens_light_1to5} showLabel={false} />
@@ -123,15 +123,15 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
 
       {/* AI Summary Preview */}
       {venue.ai_accessibility_summary && (
-        <div className="px-4 py-2 border-t border-gray-100">
-          <p className="text-xs text-gray-500 line-clamp-2">
+        <div className="px-4 py-2 border-t border-[color:var(--border)]/60">
+          <p className="text-xs text-[color:var(--muted)] line-clamp-2">
             {venue.ai_accessibility_summary}
           </p>
         </div>
       )}
 
       {/* Footer with voting and website */}
-      <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+      <div className="px-4 py-3 bg-[color:var(--bg)] border-t border-[color:var(--border)]/60 flex items-center justify-between">
         {/* Voting */}
         <div className="flex items-center gap-2">
           <button
@@ -163,7 +163,7 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+            className="flex items-center gap-1 text-sm text-[hsl(182_40%_35%)] hover:text-[hsl(182_45%_28%)]"
           >
             <span className="hidden sm:inline">Website</span>
             <ExternalLink className="w-4 h-4" />
@@ -180,24 +180,24 @@ interface VenueCardSkeletonProps {
 
 export function VenueCardSkeleton({ className }: VenueCardSkeletonProps) {
   return (
-    <div className={cn('bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden animate-pulse', className)}>
-      <div className="p-4 pb-3 border-b border-gray-100">
+    <div className={cn('bg-[color:var(--surface)] rounded-xl border border-[color:var(--border)]/80 shadow-[0_2px_10px_rgba(15,23,42,0.06)] overflow-hidden animate-pulse', className)}>
+      <div className="p-4 pb-3 border-b border-[color:var(--border)]/60">
         <div className="flex items-center gap-2 mb-2">
-          <div className="h-5 w-20 bg-gray-200 rounded-full" />
+          <div className="h-5 w-20 bg-[color:var(--border)]/60 rounded-full" />
         </div>
-        <div className="h-6 w-3/4 bg-gray-200 rounded" />
+        <div className="h-6 w-3/4 bg-[color:var(--border)]/60 rounded" />
       </div>
       <div className="px-4 py-3">
         <div className="flex gap-2">
-          <div className="h-6 w-16 bg-gray-200 rounded-full" />
-          <div className="h-6 w-16 bg-gray-200 rounded-full" />
-          <div className="h-6 w-16 bg-gray-200 rounded-full" />
+          <div className="h-6 w-16 bg-[color:var(--border)]/60 rounded-full" />
+          <div className="h-6 w-16 bg-[color:var(--border)]/60 rounded-full" />
+          <div className="h-6 w-16 bg-[color:var(--border)]/60 rounded-full" />
         </div>
       </div>
-      <div className="px-4 py-3 bg-gray-50">
+      <div className="px-4 py-3 bg-[color:var(--bg)]">
         <div className="flex gap-3">
-          <div className="h-5 w-12 bg-gray-200 rounded" />
-          <div className="h-5 w-12 bg-gray-200 rounded" />
+          <div className="h-5 w-12 bg-[color:var(--border)]/60 rounded" />
+          <div className="h-5 w-12 bg-[color:var(--border)]/60 rounded" />
         </div>
       </div>
     </div>

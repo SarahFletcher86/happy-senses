@@ -138,6 +138,20 @@
   --radius: 0.5rem;
 }
 
+:root {
+  --bg: hsl(210 30% 98%);
+  --surface: hsl(0 0% 100%);
+  --border: hsl(210 18% 88%);
+  --text: hsl(210 22% 16%);
+  --muted: hsl(210 10% 46%);
+  --brand-sky: hsl(200 60% 90%);
+  --brand-teal: hsl(182 40% 55%);
+  --brand-green: hsl(150 35% 78%);
+  --brand-peach: hsl(22 70% 86%);
+  --brand-mustard: hsl(38 70% 75%);
+  --deep-charcoal: hsl(210 18% 12%);
+}
+
 /* Dark theme overrides */
 .dark {
   --color-background: hsl(240 10% 3.9%);
@@ -159,6 +173,17 @@
   --color-border: hsl(240 3.7% 15.9%);
   --color-input: hsl(240 3.7% 15.9%);
   --color-ring: hsl(240 4.9% 83.9%);
+  --bg: hsl(210 18% 10%);
+  --surface: hsl(210 18% 15%);
+  --border: hsl(210 12% 24%);
+  --text: hsl(0 0% 96%);
+  --muted: hsl(210 9% 64%);
+  --brand-sky: hsl(200 40% 32%);
+  --brand-teal: hsl(182 35% 40%);
+  --brand-green: hsl(150 30% 34%);
+  --brand-peach: hsl(22 45% 35%);
+  --brand-mustard: hsl(38 45% 35%);
+  --deep-charcoal: hsl(210 18% 12%);
 }
 
 /* Dark mode styles for common elements */
