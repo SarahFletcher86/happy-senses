@@ -101,6 +101,11 @@ export function filterVenues(
   filters: VenueFilters
 ): Venue[] {
   return venues.filter(venue => {
+    const matchesFlag = (value: boolean | null, flag: boolean | null) => {
+      if (flag === null) return true;
+      return flag ? value === true : value === false;
+    };
+
     // Search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
@@ -129,19 +134,26 @@ export function filterVenues(
         venue.sens_headphones === true ||
         venue.sens_staff_trained === true;
       if (!hasSensoryFeature) return false;
+    } else if (filters.sensory_friendly === false) {
+      const hasSensoryFeature =
+        venue.sens_quiet_room === true ||
+        venue.sens_headphones === true ||
+        venue.sens_staff_trained === true;
+      if (hasSensoryFeature) return false;
     }
 
     // Individual sensory filters
-    if (filters.quiet_room === true && venue.sens_quiet_room !== true) return false;
-    if (filters.headphones === true && venue.sens_headphones !== true) return false;
-    if (filters.staff_trained === true && venue.sens_staff_trained !== true) return false;
+    if (!matchesFlag(venue.sens_quiet_room, filters.quiet_room)) return false;
+    if (!matchesFlag(venue.sens_headphones, filters.headphones)) return false;
+    if (!matchesFlag(venue.sens_staff_trained, filters.staff_trained)) return false;
 
     // Accessibility filters
-    if (filters.accessible === true && venue.accessible !== true) return false;
-    if (filters.fenced === true && venue.fenced !== true) return false;
+    if (!matchesFlag(venue.accessible, filters.accessible)) return false;
+    if (!matchesFlag(venue.fenced, filters.fenced)) return false;
 
     // Not near water filter
     if (filters.not_near_water === true && venue.near_water === true) return false;
+    if (filters.not_near_water === false && venue.near_water !== true) return false;
 
     return true;
   });
