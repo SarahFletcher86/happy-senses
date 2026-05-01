@@ -138,18 +138,38 @@
   --radius: 0.5rem;
 }
 
+
 :root {
-  --bg: hsl(210 30% 98%);
-  --surface: hsl(0 0% 100%);
-  --border: hsl(210 18% 88%);
-  --text: hsl(210 22% 16%);
-  --muted: hsl(210 10% 46%);
-  --brand-sky: hsl(200 60% 90%);
-  --brand-teal: hsl(182 40% 55%);
-  --brand-green: hsl(150 35% 78%);
-  --brand-peach: hsl(22 70% 86%);
-  --brand-mustard: hsl(38 70% 75%);
-  --deep-charcoal: hsl(210 18% 12%);
+  --bg: #e6fbf4; /* veryLightMint for hero backgrounds */
+  --surface: #fff;
+  --border: #e6ece9; /* mistGrey for borders */
+  --text: #4a4a4a; /* charcoal for main text */
+  --muted: #7a8a85;
+  --charcoal: #4a4a4a;
+  --calmTeal: #3ec6b7;
+  --mistGrey: #e6ece9;
+  --veryLightMint: #e6fbf4;
+  --mint: #c1efdd;
+  --peach: #fbd4c0;
+  --butter: #faf5b8;
+  --iceBlue: #d6edf4;
+  --brand-sky: #d6edf4;
+  --brand-teal: #3ec6b7;
+  --brand-green: #c1efdd;
+  --brand-peach: #fbd4c0;
+  --brand-mustard: #faf5b8;
+  --deep-charcoal: #4a4a4a;
+}
+
+body {
+  color: var(--charcoal);
+  font-family: var(--font-dm-sans), 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  background: var(--bg);
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-fraunces), 'Fraunces', serif;
+  color: var(--charcoal);
 }
 
 /* Dark theme overrides */

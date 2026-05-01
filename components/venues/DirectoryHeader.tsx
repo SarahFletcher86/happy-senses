@@ -1,31 +1,52 @@
-import { Sparkles } from 'lucide-react';
+import Image from 'next/image';
 
-interface DirectoryHeaderProps {
-  venueCount: number;
-}
-
-export function DirectoryHeader({ venueCount }: DirectoryHeaderProps) {
-  const formattedCount = venueCount.toLocaleString('en-US');
+export function DirectoryHeader() {
   return (
-    <header className="bg-[linear-gradient(120deg,_hsl(200_55%_90%),_hsl(270_35%_94%))]">
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:py-20">
-        <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-5 h-5 text-[hsl(38_70%_75%)]" />
-          <span className="text-xs font-medium tracking-wide text-[color:var(--muted)]">
-            Sensory-Friendly Directory
-          </span>
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-semibold mb-3 text-[color:var(--text)]">
-          Happy Senses
-        </h1>
-        <p className="text-base sm:text-lg text-[color:var(--text)]/85 max-w-2xl leading-relaxed">
-          Discover inclusive spaces across Ontario designed for everyone. 
-          Find venues with quiet rooms, trained staff, and sensory-friendly accommodations.
-        </p>
-        <div className="mt-5 flex items-center gap-4">
-          <span className="text-sm text-[color:var(--muted)]">
-            {formattedCount} places • enrichment in progress
-          </span>
+    <header
+      className="bg-veryLightMint"
+      style={{ background: 'var(--veryLightMint)' }}
+    >
+      <div className="max-w-7xl mx-auto px-4 py-20 sm:py-28">
+        <div className="flex flex-col sm:flex-row items-center sm:items-center gap-12">
+          <div className="relative h-24 w-24 md:h-32 md:w-32 lg:h-40 lg:w-40 shrink-0 flex justify-center items-center mb-8 sm:mb-0">
+            <Image
+              src="/heart.png"
+              alt="Happy Senses heart icon"
+              fill
+              sizes="(max-width: 768px) 96px, (max-width: 1024px) 128px, 160px"
+              className="rounded-full shadow-none"
+              style={{ objectFit: 'contain' }}
+              priority
+            />
+          </div>
+          <div className="flex flex-col items-center sm:items-start gap-2">
+            <h1
+              className="text-5xl sm:text-6xl font-heading font-bold text-charcoal mb-2 leading-tight"
+            >
+              Happy Senses
+            </h1>
+            <span
+              className="text-xl sm:text-2xl font-sans font-normal text-charcoal/80 leading-relaxed mt-1"
+              style={{ letterSpacing: 0.2 }}
+            >
+              Finding calmer spaces, together.
+            </span>
+            <div className="mt-6 flex flex-col items-center sm:items-start gap-2 w-full">
+              <a
+                href="#explore"
+                className="inline-block px-8 py-3 bg-calmTeal text-white rounded-[8px] shadow-md font-sans font-semibold text-lg transition hover:bg-calmTeal/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-calmTeal"
+                style={{ boxShadow: '0 4px 24px 0 rgba(62,198,183,0.10)' }}
+              >
+                Explore Venues Near You
+              </a>
+              <a
+                href="#add-venue"
+                className="inline-block text-base font-sans text-charcoal/60 hover:text-charcoal/80 transition mt-1"
+              >
+                Add Your Venue
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </header>

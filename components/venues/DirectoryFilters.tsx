@@ -59,40 +59,40 @@ export function DirectoryFilters({
   return (
     <div className={cn('space-y-4', className)}>
       {/* Search Input */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <div className="relative font-sans">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-calmTeal" />
         <input
           type="text"
           placeholder="Search venues..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full pl-10 pr-4 py-3 border border-mistGrey rounded-xl text-charcoal bg-white focus:outline-none focus:ring-2 focus:ring-calmTeal focus:border-calmTeal placeholder:text-mistGrey"
         />
         {search && (
           <button
             onClick={() => setSearch('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100"
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-mint"
           >
-            <X className="w-4 h-4 text-gray-400" />
+            <X className="w-4 h-4 text-calmTeal" />
           </button>
         )}
       </div>
 
       {/* Main Filters Row */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 font-sans">
         {/* Category Select */}
         <div className="relative">
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="appearance-none pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="appearance-none pl-4 pr-10 py-2.5 border border-mistGrey rounded-lg focus:outline-none focus:ring-2 focus:ring-calmTeal bg-white text-charcoal"
           >
             <option value="All">All Categories</option>
             {categories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
-          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-calmTeal pointer-events-none" />
         </div>
 
         {/* City Select */}
@@ -100,14 +100,14 @@ export function DirectoryFilters({
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="appearance-none pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="appearance-none pl-4 pr-10 py-2.5 border border-mistGrey rounded-lg focus:outline-none focus:ring-2 focus:ring-calmTeal bg-white text-charcoal"
           >
             <option value="All">All Cities</option>
             {cities.map(city => (
               <option key={city} value={city}>{city}</option>
             ))}
           </select>
-          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-calmTeal pointer-events-none" />
         </div>
 
         {/* Sort Select */}
@@ -115,17 +115,17 @@ export function DirectoryFilters({
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="appearance-none pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            className="appearance-none pl-4 pr-10 py-2.5 border border-mistGrey rounded-lg focus:outline-none focus:ring-2 focus:ring-calmTeal bg-white text-charcoal"
           >
             {sortOptions.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
-          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-calmTeal pointer-events-none" />
         </div>
 
         {/* Result Count */}
-        <span className="ml-auto text-sm text-gray-500">
+        <span className="ml-auto text-sm text-mistGrey">
           {venueCount} venue{venueCount !== 1 ? 's' : ''}
         </span>
       </div>
@@ -133,14 +133,14 @@ export function DirectoryFilters({
       {/* Active Filters */}
       {activeQuickFiltersCount > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-500">Active filters:</span>
+          <span className="text-sm text-mistGrey">Active filters:</span>
           {quickFilters.map(f => {
             if (filters[f.key] !== true) return null;
             return (
               <button
                 key={f.key}
                 onClick={() => setFilters({ ...filters, [f.key]: null })}
-                className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-sm hover:bg-blue-200 transition-colors"
+                className="flex items-center gap-1 px-2 py-1 rounded-full bg-mint text-calmTeal text-sm hover:bg-calmTeal/10 hover:text-charcoal border border-calmTeal/40 transition-colors"
               >
                 <span>{f.icon}</span>
                 <span>{f.label}</span>
@@ -158,7 +158,7 @@ export function DirectoryFilters({
               fenced: null,
               not_near_water: null,
             })}
-            className="text-sm text-gray-500 hover:text-gray-700"
+            className="text-sm text-calmTeal hover:text-charcoal"
           >
             Clear all
           </button>
@@ -166,7 +166,7 @@ export function DirectoryFilters({
       )}
 
       {/* Quick Filter Toggles */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-3 mt-2">
         {quickFilters.map(f => (
           <button
             key={f.key}
@@ -175,11 +175,12 @@ export function DirectoryFilters({
               [f.key]: filters[f.key] === true ? null : true,
             })}
             className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border',
+              'flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium font-sans border transition-colors',
               filters[f.key] === true
-                ? 'bg-blue-100 text-blue-700 border-blue-200'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                ? 'bg-mint text-calmTeal border-calmTeal'
+                : 'bg-white text-calmTeal border-calmTeal hover:bg-calmTeal/10'
             )}
+            style={{ boxShadow: '0 1px 4px 0 rgba(62,198,183,0.04)' }}
           >
             <span>{f.icon}</span>
             <span>{f.label}</span>

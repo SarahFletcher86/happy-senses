@@ -31,27 +31,7 @@ export async function generateStaticParams() {
   }));
 }
 
-// Mock notes data (replace with database later)
-function getVenueNotes(slug: string): VenueNote[] {
-  return [
-    {
-      id: '1',
-      displayName: 'Sarah M.',
-      noteText: 'Great quiet room for sensory breaks. Staff was very understanding of our needs.',
-      createdAt: '2024-01-15',
-      upvotes: 5,
-      downvotes: 0,
-    },
-    {
-      id: '2',
-      displayName: 'Mike T.',
-      noteText: 'Visited with autistic child. The fenced area made it easy to relax.',
-      createdAt: '2024-01-10',
-      upvotes: 3,
-      downvotes: 0,
-    },
-  ];
-}
+
 
 export default async function VenueDetailPage({ params }: VenueDetailPageProps) {
   const { slug } = await params;
@@ -61,15 +41,11 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
     notFound();
   }
 
-  const notes = getVenueNotes(slug);
   const score = venue.sens_score_avg ?? 0;
 
-  // Get score color
-  const getScoreColor = (score: number) => {
-    if (score >= 70) return 'bg-emerald-500';
-    if (score >= 50) return 'bg-yellow-500';
-    if (score >= 30) return 'bg-orange-500';
-    return 'bg-red-500';
+  // Get score color (calm, no orange)
+  const getScoreColor = () => {
+    return 'bg-peach/30 text-charcoal border border-calmTeal/40';
   };
 
   return (
@@ -88,14 +64,9 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className={cn(
-                  'px-3 py-1 rounded-full text-sm font-medium',
-                  venue.category === 'Park' ? 'bg-green-100 text-green-700' :
-                  venue.category === 'Community Centre' ? 'bg-blue-100 text-blue-700' :
-                  venue.category === 'Museum' ? 'bg-purple-100 text-purple-700' :
-                  venue.category === 'Library' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-gray-100 text-gray-700'
-                )}>
+                <span
+                  className="px-3 py-1 rounded-full text-sm font-medium font-sans bg-veryLightMint text-calmTeal border border-calmTeal/30"
+                >
                   {venue.category}
                 </span>
                 {venue.sens_certification && (
@@ -104,19 +75,20 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">{venue.name}</h1>
-              <p className="text-gray-500 mt-1">
+              <h1 className="text-3xl font-heading font-bold text-charcoal mb-1">{venue.name}</h1>
+              <p className="text-calmTeal font-sans text-base mb-1">Community-submitted accessibility insights.</p>
+              <p className="text-charcoal/80 font-sans mt-1">
                 {venue.city || 'Ontario, Canada'}
               </p>
             </div>
             
             {/* Score Badge */}
             <div className="flex flex-col items-end">
-              <div className={cn('flex items-center gap-2 px-4 py-2 rounded-xl text-white', getScoreColor(score))}>
-                <span className="text-3xl font-bold">{score}</span>
-                <span className="text-sm font-medium">/100</span>
+              <div className={cn('flex items-center gap-2 px-4 py-2 rounded-xl', getScoreColor())}>
+                <span className="text-2xl font-semibold font-sans">{score}</span>
+                <span className="text-sm font-medium font-sans">/100</span>
               </div>
-              <span className="text-sm text-gray-500 mt-1">Sensory Score</span>
+              <span className="text-xs text-mistGrey mt-1">Sensory Score</span>
             </div>
           </div>
         </div>
@@ -127,26 +99,26 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Location & Contact */}
-            <section className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold mb-4">Location & Contact</h2>
+            <section className="bg-white rounded-xl border border-mistGrey p-6">
+              <h2 className="text-xl font-heading font-semibold text-charcoal mb-4">Location & Contact</h2>
               <div className="space-y-3">
                 {venue.address && (
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
-                      <p className="text-gray-900">{venue.address}</p>
-                      <p className="text-gray-500">{venue.city || 'Ontario'}</p>
+                      <p className="text-charcoal font-sans font-medium">{venue.address}</p>
+                      <p className="text-charcoal/80 font-sans">{venue.city || 'Ontario'}</p>
                     </div>
                   </div>
                 )}
                 {venue.website && (
                   <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-gray-400" />
+                    <Globe className="w-5 h-5 text-calmTeal" />
                     <a 
                       href={venue.website} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                      className="text-calmTeal hover:text-charcoal flex items-center gap-1 font-sans font-medium"
                     >
                       <span>Visit Website</span>
                       <ExternalLink className="w-4 h-4" />
@@ -155,23 +127,23 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
                 )}
                 {venue.phone && (
                   <div className="flex items-center gap-3">
-                    <Phone className="w-5 h-5 text-gray-400" />
-                    <a href={`tel:${venue.phone}`} className="text-blue-600 hover:text-blue-700">
+                    <Phone className="w-5 h-5 text-calmTeal" />
+                    <a href={`tel:${venue.phone}`} className="text-calmTeal hover:text-charcoal font-sans font-medium">
                       {venue.phone}
                     </a>
                   </div>
                 )}
                 {venue.email && (
                   <div className="flex items-center gap-3">
-                    <Mail className="w-5 h-5 text-gray-400" />
-                    <a href={`mailto:${venue.email}`} className="text-blue-600 hover:text-blue-700">
+                    <Mail className="w-5 h-5 text-calmTeal" />
+                    <a href={`mailto:${venue.email}`} className="text-calmTeal hover:text-charcoal font-sans font-medium">
                       {venue.email}
                     </a>
                   </div>
                 )}
                 {venue.sens_last_verified && (
-                  <div className="flex items-center gap-3 text-sm text-gray-500">
-                    <Calendar className="w-5 h-5 text-gray-400" />
+                  <div className="flex items-center gap-3 text-sm text-mistGrey">
+                    <Calendar className="w-5 h-5 text-calmTeal" />
                     <span>Last verified: {new Date(venue.sens_last_verified).toLocaleDateString()}</span>
                   </div>
                 )}
@@ -263,62 +235,21 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
             )}
 
             {/* Community Notes */}
-            <section className="bg-white rounded-xl border border-gray-200 p-6">
+            <section className="bg-white rounded-xl border border-mistGrey/40 p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Community Notes</h2>
-                <span className="text-sm text-gray-500">{notes.length} note{notes.length !== 1 ? 's' : ''}</span>
+                <h2 className="text-lg font-semibold text-charcoal">Community Insights</h2>
+                <button
+                  className="px-4 py-2 rounded-lg bg-calmTeal text-white font-sans font-medium hover:bg-calmTeal/90 transition-colors"
+                  // TODO: Open modal for submitting insight
+                  type="button"
+                >
+                  Submit Insight
+                </button>
               </div>
-              
-              {notes.length > 0 ? (
-                <div className="space-y-4">
-                  {notes.map(note => (
-                    <div key={note.id} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-medium text-gray-900">{note.displayName}</span>
-                        <span className="text-sm text-gray-500">
-                          {new Date(note.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <p className="text-gray-700 mb-2">{note.noteText}</p>
-                      <div className="flex items-center gap-3 text-sm">
-                        <button className="flex items-center gap-1 text-gray-500 hover:text-emerald-600">
-                          <ThumbsUp className="w-4 h-4" />
-                          <span>{note.upvotes}</span>
-                        </button>
-                        <button className="flex items-center gap-1 text-gray-500 hover:text-red-600">
-                          <ThumbsDown className="w-4 h-4" />
-                          <span>{note.downvotes}</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">No community notes yet. Be the first to share your experience!</p>
-              )}
-
-              {/* Add Note Form */}
-              <form className="mt-6 pt-6 border-t border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Add a Note</h3>
-                <textarea
-                  placeholder="Share your experience at this venue..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                  rows={3}
-                />
-                <div className="flex items-center justify-between">
-                  <input
-                    type="text"
-                    placeholder="Your name (optional)"
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Submit Note
-                  </button>
-                </div>
-              </form>
+              <div className="text-center py-6">
+                <p className="text-mistGrey text-base mb-2">No insights have been shared for this venue yet.</p>
+                <p className="text-charcoal/70 text-sm">Be the first to help others by sharing your experience or accessibility tips.</p>
+              </div>
             </section>
           </div>
 
@@ -356,9 +287,10 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
               <p className="text-xs text-gray-500 mb-3">
                 Help us keep this directory accurate by reporting outdated information.
               </p>
-              <button className="w-full px-4 py-2 text-sm text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+              <button className="w-full px-4 py-2 text-sm bg-calmTeal text-white rounded-lg hover:bg-calmTeal/90 transition-colors font-sans font-medium">
                 Report Issue
               </button>
+              <p className="text-xs text-mistGrey mt-2 text-center">Help us keep this accurate and safe.</p>
             </section>
           </div>
         </div>

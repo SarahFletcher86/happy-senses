@@ -19,10 +19,10 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
   
   // Get score color based on value
   const getScoreColor = (score: number) => {
-    if (score >= 70) return 'bg-emerald-500';
-    if (score >= 50) return 'bg-yellow-500';
-    if (score >= 30) return 'bg-orange-500';
-    return 'bg-red-500';
+    if (score >= 70) return 'bg-calmTeal text-white';
+    if (score >= 50) return 'bg-butter text-charcoal';
+    if (score >= 30) return 'bg-peach text-charcoal';
+    return 'bg-red-500 text-white';
   };
 
   // Get score label
@@ -42,43 +42,45 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
     <Link
       href={`/venues/${venue.slug}`}
       className={cn(
-        'block rounded-xl border border-[color:var(--border)]/80 bg-[color:var(--surface)] shadow-[0_2px_10px_rgba(15,23,42,0.06)]',
-        'hover:shadow-[0_8px_18px_rgba(15,23,42,0.08)] hover:border-[color:var(--border)] transition-all duration-200',
+        'block rounded-xl border border-mistGrey bg-white shadow-[0_2px_10px_rgba(15,23,42,0.06)]',
+        'hover:shadow-[0_8px_18px_rgba(15,23,42,0.08)] hover:border-calmTeal transition-all duration-200',
         'overflow-hidden group'
       )}
     >
       {/* Header with score and category */}
-      <div className="flex items-start justify-between p-4 pb-3 border-b border-[color:var(--border)]/60">
+      <div className="flex items-start justify-between p-6 pb-4 border-b border-mistGrey/40">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={cn(
-              'px-2 py-0.5 rounded-full text-xs font-medium',
-              venue.category === 'Park' ? 'bg-[hsl(150_35%_92%)] text-[hsl(150_35%_30%)] dark:bg-[hsl(150_20%_18%)] dark:text-[hsl(150_30%_80%)]' :
-              venue.category === 'Community Centre' ? 'bg-[hsl(200_45%_92%)] text-[hsl(200_35%_30%)] dark:bg-[hsl(200_20%_18%)] dark:text-[hsl(200_30%_80%)]' :
-              venue.category === 'Museum' ? 'bg-[hsl(22_70%_92%)] text-[hsl(22_45%_32%)] dark:bg-[hsl(22_25%_20%)] dark:text-[hsl(22_45%_80%)]' :
-              venue.category === 'Library' ? 'bg-[hsl(38_65%_90%)] text-[hsl(38_45%_32%)] dark:bg-[hsl(38_25%_20%)] dark:text-[hsl(38_45%_80%)]' :
-              'bg-[hsl(210_25%_94%)] text-[hsl(210_15%_35%)] dark:bg-[hsl(210_16%_20%)] dark:text-[hsl(210_14%_82%)]'
-            )}>
+            <span
+              className={cn(
+                'px-3 py-1 rounded-full text-xs font-medium font-sans',
+                venue.category === 'Park' ? 'bg-green-100 text-charcoal' :
+                venue.category === 'Community Centre' ? 'bg-calmTeal/10 text-charcoal' :
+                venue.category === 'Museum' ? 'bg-iceBlue text-charcoal' :
+                venue.category === 'Library' ? 'bg-butter text-charcoal' :
+                'bg-mint text-charcoal'
+              )}
+            >
               {venue.category}
             </span>
           </div>
-          <h3 className="text-lg font-semibold text-[color:var(--text)] group-hover:text-[hsl(182_40%_35%)] transition-colors truncate">
+          <h3 className="text-xl font-heading font-bold text-charcoal group-hover:text-calmTeal transition-colors truncate">
             {venue.name}
           </h3>
         </div>
-        
-        {/* Score Badge */}
+        {/* Sensory Score Block - neutral card with accent bar */}
         <div className="flex flex-col items-end gap-1">
-          <div className={cn('flex items-center gap-1 px-2 py-1 rounded-lg text-white text-sm font-bold', getScoreColor(score))}>
-            <span>{score}</span>
+          <div className="relative flex items-center min-w-[56px] px-3 py-1 rounded-lg bg-mistGrey/80">
+            <span className="absolute left-0 top-0 h-full w-1 rounded-l-lg bg-calmTeal" />
+            <span className="ml-2 text-sm font-bold text-charcoal">{score}</span>
           </div>
           <span className="text-xs text-[color:var(--muted)]">{getScoreLabel(score)}</span>
         </div>
       </div>
 
       {/* Location */}
-      <div className="px-4 py-2 flex items-center gap-1.5 text-sm text-[color:var(--muted)]">
-        <MapPin className="w-4 h-4 flex-shrink-0 text-[color:var(--muted)]/70" />
+      <div className="px-6 py-2 flex items-center gap-1.5 text-sm text-mistGrey">
+        <MapPin className="w-4 h-4 flex-shrink-0 text-mistGrey/70" />
         {(venue.city || venue.address) ? (
           <span className="truncate">
             {venue.city}{venue.city && venue.address && ' - '}{venue.address}
@@ -89,7 +91,7 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
       </div>
 
       {/* Sensory Badges */}
-      <div className="px-4 py-2 border-t border-[color:var(--border)]/60">
+      <div className="px-6 py-3 border-t border-mistGrey/30">
         <div className="flex flex-wrap gap-1.5">
           <SensoryBadge type="noise" value={venue.sens_noise_1to5} showLabel={false} />
           <SensoryBadge type="light" value={venue.sens_light_1to5} showLabel={false} />
@@ -123,7 +125,7 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
 
       {/* AI Summary Preview */}
       {venue.ai_accessibility_summary && (
-        <div className="px-4 py-2 border-t border-[color:var(--border)]/60">
+        <div className="px-4 py-2 border-t border-mistGrey/60">
           <p className="text-xs text-[color:var(--muted)] line-clamp-2">
             {venue.ai_accessibility_summary}
           </p>
@@ -131,7 +133,7 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
       )}
 
       {/* Footer with voting and website */}
-      <div className="px-4 py-3 bg-[color:var(--bg)] border-t border-[color:var(--border)]/60 flex items-center justify-between">
+      <div className="px-4 py-3 bg-veryLightMint border-t border-mistGrey/60 flex items-center justify-between">
         {/* Voting */}
         <div className="flex items-center gap-2">
           <button
@@ -139,7 +141,7 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
               e.preventDefault();
               onUpvote?.(venue.slug);
             }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-mint border border-calmTeal/40 text-charcoal hover:bg-calmTeal/10 hover:border-calmTeal focus-visible:ring-2 focus-visible:ring-calmTeal transition-colors"
           >
             <ThumbsUp className="w-4 h-4" />
             <span className="text-sm font-medium">{upvotes}</span>
@@ -149,7 +151,7 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
               e.preventDefault();
               onDownvote?.(venue.slug);
             }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors"
+            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-peach border border-peach/60 text-charcoal hover:bg-red-100 hover:text-red-700 transition-colors"
           >
             <ThumbsDown className="w-4 h-4" />
             <span className="text-sm font-medium">{downvotes}</span>
@@ -163,7 +165,7 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-sm text-[hsl(182_40%_35%)] hover:text-[hsl(182_45%_28%)]"
+            className="flex items-center gap-1 text-sm text-calmTeal hover:text-charcoal font-sans"
           >
             <span className="hidden sm:inline">Website</span>
             <ExternalLink className="w-4 h-4" />
