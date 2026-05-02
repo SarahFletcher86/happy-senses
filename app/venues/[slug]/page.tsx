@@ -16,8 +16,8 @@ import { SensoryPill } from '@/components/venues/SensoryBadge';
 import { VenueDetailClient } from '@/components/venues/VenueDetailClient';
 import {
   getApprovedNotesBySlug,
+  getAllVenues,
   getVenueBySlug,
-  loadVenues,
 } from '@/lib/venues';
 import {
   getCrowdDescription,
@@ -30,6 +30,9 @@ import { cn } from '@/lib/utils';
 interface VenueDetailPageProps {
   params: Promise<{ slug: string }>;
 }
+
+export const revalidate = 300;
+export const dynamicParams = true;
 
 const categoryStyles: Record<string, string> = {
   Library:
@@ -49,8 +52,17 @@ const tierStyles: Record<string, string> = {
 };
 
 export async function generateStaticParams() {
-  const venues = await loadVenues();
-  return venues.map((venue) => ({ slug: venue.slug }));
+  const venues = await getAllVenues();
+  const topVenues = venues
+    .filter((venue) => venue.published)
+    .sort((a, b) => {
+      const upvoteDiff = (b.community_upvotes ?? 0) - (a.community_upvotes ?? 0);
+      if (upvoteDiff !== 0) return upvoteDiff;
+      return (b.google_review_count ?? 0) - (a.google_review_count ?? 0);
+    })
+    .slice(0, 50);
+
+  return topVenues.map((venue) => ({ slug: venue.slug }));
 }
 
 export default async function VenueDetailPage({ params }: VenueDetailPageProps) {

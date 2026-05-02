@@ -6,7 +6,7 @@ const AIRTABLE_VENUES_TABLE_ID = process.env.AIRTABLE_VENUES_TABLE_ID;
 const AIRTABLE_NOTES_TABLE_ID = process.env.AIRTABLE_NOTES_TABLE_ID;
 const AIRTABLE_SUBMISSIONS_TABLE_ID = process.env.AIRTABLE_SUBMISSIONS_TABLE_ID;
 
-export type AirtableVenueRecord = {
+type AirtableRecord = {
   id: string;
   fields: Record<string, unknown>;
 };
@@ -47,7 +47,7 @@ function quoteFormulaValue(value: string): string {
 async function selectAll(
   tableId: string,
   options: Airtable.SelectOptions<Record<string, unknown>>
-): Promise<AirtableVenueRecord[]> {
+): Promise<AirtableRecord[]> {
   const table = getBase()(tableId);
   const records = await table.select(options).all();
 
@@ -57,42 +57,8 @@ async function selectAll(
   }));
 }
 
-async function selectFirst(
-  tableId: string,
-  options: Airtable.SelectOptions<Record<string, unknown>>
-): Promise<AirtableVenueRecord | null> {
-  const records = await selectAll(tableId, { ...options, maxRecords: 1 });
-  return records[0] ?? null;
-}
-
 export function isAirtableConfigured(): boolean {
   return hasAirtableConfig();
-}
-
-export async function fetchPublishedVenues(filters?: {
-  category?: string;
-  city?: string;
-}): Promise<AirtableVenueRecord[]> {
-  const formulaParts = ['{published}=TRUE()'];
-
-  if (filters?.category) {
-    formulaParts.push(`{category}=${quoteFormulaValue(filters.category)}`);
-  }
-
-  if (filters?.city) {
-    formulaParts.push(`{city}=${quoteFormulaValue(filters.city)}`);
-  }
-
-  return selectAll(AIRTABLE_VENUES_TABLE_ID!, {
-    filterByFormula: `AND(${formulaParts.join(',')})`,
-    sort: [{ field: 'name', direction: 'asc' }],
-  });
-}
-
-export async function fetchVenueBySlug(slug: string): Promise<AirtableVenueRecord | null> {
-  return selectFirst(AIRTABLE_VENUES_TABLE_ID!, {
-    filterByFormula: `AND({published}=TRUE(), {slug}=${quoteFormulaValue(slug)})`,
-  });
 }
 
 export async function incrementVote(recordId: string, type: 'up' | 'down') {

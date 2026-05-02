@@ -1,12 +1,9 @@
 import Papa from 'papaparse';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { unstable_cache } from 'next/cache';
 import { z } from 'zod';
 import {
   fetchApprovedNotes,
-  fetchPublishedVenues,
-  fetchVenueBySlug as fetchVenueBySlugFromAirtable,
   isAirtableConfigured,
 } from './airtable';
 import {
@@ -34,6 +31,7 @@ const sensoryCertificationValues = [
 ] as const;
 
 const equipmentHeightValues = ['toddler', 'low', 'medium', 'high', 'various'] as const;
+const AIRTABLE_API = 'https://api.airtable.com/v0';
 
 const venueSchema = z.object({
   recordId: z.string().optional(),
@@ -288,46 +286,91 @@ function parseCsvVenues(): Venue[] {
     .filter((venue: Venue) => venue.published);
 }
 
-const loadVenueDataStateCached = unstable_cache(
-  async (): Promise<VenueDataState> => {
-    if (!isAirtableConfigured()) {
-      return {
-        venues: parseCsvVenues(),
-        source: 'csv-fallback',
-        warning: null,
-      };
+function getAirtableConfig() {
+  return {
+    baseId: process.env.AIRTABLE_BASE_ID!,
+    venuesTableId: process.env.AIRTABLE_VENUES_TABLE_ID!,
+    pat: process.env.AIRTABLE_PAT!,
+  };
+}
+
+function quoteFormulaValue(value: string): string {
+  return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+}
+
+function buildAirtableHeaders(pat: string) {
+  return { Authorization: `Bearer ${pat}` };
+}
+
+type AirtableRecord = {
+  id: string;
+  fields: Record<string, unknown>;
+};
+
+function mapAirtableRecordToVenue(record: AirtableRecord): Venue {
+  return normalizeVenue({
+    ...record.fields,
+    recordId: record.id,
+    published: true,
+  });
+}
+
+async function loadVenuesFromAirtable(): Promise<Venue[]> {
+  const { baseId, venuesTableId, pat } = getAirtableConfig();
+  const all: Venue[] = [];
+  let offset: string | undefined;
+
+  do {
+    const url = new URL(`${AIRTABLE_API}/${baseId}/${venuesTableId}`);
+    url.searchParams.set('pageSize', '100');
+    url.searchParams.set('filterByFormula', '{published}=TRUE()');
+    url.searchParams.set('sort[0][field]', 'name');
+    url.searchParams.set('sort[0][direction]', 'asc');
+    if (offset) {
+      url.searchParams.set('offset', offset);
     }
 
-    try {
-      const records = await fetchPublishedVenues();
-      const venues = records.map((record) =>
-        normalizeVenue({
-          ...record.fields,
-          recordId: record.id,
-          published: true,
-        })
-      );
+    const res = await fetch(url.toString(), {
+      headers: buildAirtableHeaders(pat),
+      next: { revalidate: 300, tags: ['venues'] },
+    });
 
-      return {
-        venues,
-        source: 'airtable',
-        warning: null,
-      };
-    } catch (error) {
-      console.warn('[venues] Airtable failed, falling back to CSV.', error);
-      return {
-        venues: parseCsvVenues(),
-        source: 'csv-fallback',
-        warning: 'Showing cached venues',
-      };
+    if (!res.ok) {
+      throw new Error(`Airtable venues request failed with ${res.status}`);
     }
-  },
-  ['happy-senses-venues'],
-  { revalidate: 300 }
-);
+
+    const data = (await res.json()) as { records?: AirtableRecord[]; offset?: string };
+    all.push(...(data.records ?? []).map(mapAirtableRecordToVenue));
+    offset = data.offset;
+  } while (offset);
+
+  return all;
+}
 
 export async function loadVenueDataState(): Promise<VenueDataState> {
-  return loadVenueDataStateCached();
+  if (!isAirtableConfigured()) {
+    return {
+      venues: parseCsvVenues(),
+      source: 'csv-fallback',
+      warning: null,
+    };
+  }
+
+  try {
+    const venues = await loadVenuesFromAirtable();
+    return {
+      venues,
+      source: 'airtable',
+      warning: null,
+    };
+  } catch (error) {
+    console.warn('[venues] Airtable failed, falling back to CSV.', error);
+    return {
+      venues: parseCsvVenues(),
+      source: 'csv-fallback',
+      warning: 'Showing cached venues',
+    };
+  }
 }
 
 export async function loadVenues(): Promise<Venue[]> {
@@ -335,16 +378,33 @@ export async function loadVenues(): Promise<Venue[]> {
   return venues;
 }
 
+export async function getAllVenues(): Promise<Venue[]> {
+  return loadVenues();
+}
+
 export async function getVenueBySlug(slug: string): Promise<Venue | null> {
   if (isAirtableConfigured()) {
     try {
-      const record = await fetchVenueBySlugFromAirtable(slug);
-      if (record) {
-        return normalizeVenue({
-          ...record.fields,
-          recordId: record.id,
-          published: true,
-        });
+      const { baseId, venuesTableId, pat } = getAirtableConfig();
+      const url = new URL(`${AIRTABLE_API}/${baseId}/${venuesTableId}`);
+      url.searchParams.set(
+        'filterByFormula',
+        `AND({published}=TRUE(), {slug}=${quoteFormulaValue(slug)})`
+      );
+      url.searchParams.set('maxRecords', '1');
+
+      const res = await fetch(url.toString(), {
+        headers: buildAirtableHeaders(pat),
+        next: { revalidate: 300, tags: [`venue:${slug}`] },
+      });
+
+      if (res.ok) {
+        const data = (await res.json()) as { records?: AirtableRecord[] };
+        const record = data.records?.[0];
+        if (record) {
+          return mapAirtableRecordToVenue(record);
+        }
+        return null;
       }
     } catch (error) {
       console.warn('[venues] Failed to load venue by slug from Airtable, using cached data.', error);

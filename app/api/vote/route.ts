@@ -1,3 +1,4 @@
+import { revalidateTag } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { incrementVote } from '@/lib/airtable';
 import { getVenueBySlug } from '@/lib/venues';
@@ -28,6 +29,8 @@ export async function POST(request: Request): Promise<NextResponse<VoteResponse>
     }
 
     const updated = await incrementVote(venue.recordId, type);
+    revalidateTag(`venue:${body.slug}`, 'max');
+    revalidateTag('venues', 'max');
     return NextResponse.json({
       success: true,
       upvotes: updated.upvotes,
