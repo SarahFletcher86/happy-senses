@@ -1,62 +1,54 @@
 import { NextResponse } from 'next/server';
-import type { NoteRequest, NoteResponse, VenueNote } from '@/lib/types';
-
-// Simple ID generator (replace with nanoid or UUID when persistence is added)
-function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-}
-
-// In-memory storage for notes (replace with database/persistence later)
-const notesStore = new Map<string, VenueNote[]>();
+import { addNote } from '@/lib/airtable';
+import { getApprovedNotesBySlug, getVenueBySlug } from '@/lib/venues';
+import type { NoteRequest, NoteResponse } from '@/lib/types';
 
 export async function POST(request: Request): Promise<NextResponse<NoteResponse>> {
   try {
     const body: NoteRequest = await request.json();
-    
-    const { slug, displayName, noteText } = body;
-    
-    if (!slug || !noteText || noteText.trim().length === 0) {
+    if (!body.slug || !body.note_text?.trim()) {
       return NextResponse.json(
-        { success: false, notes: [] },
+        { success: false, notes: [], message: 'A venue and note are required.' },
         { status: 400 }
       );
     }
-    
-    // Get existing notes or initialize
-    const existingNotes = notesStore.get(slug) || [];
-    
-    // Create new note
-    const newNote: VenueNote = {
-      id: generateId(),
-      displayName: displayName?.trim() || 'Anonymous',
-      noteText: noteText.trim(),
-      createdAt: new Date().toISOString(),
-      upvotes: 0,
-      downvotes: 0,
-    };
-    
-    // Add new note to the beginning
-    const updatedNotes = [newNote, ...existingNotes];
-    
-    // Store updated notes
-    notesStore.set(slug, updatedNotes);
-    
+
+    const venue = await getVenueBySlug(body.slug);
+    if (!venue?.recordId) {
+      return NextResponse.json(
+        {
+          success: false,
+          notes: [],
+          message: 'Notes need Airtable credentials before they can be submitted.',
+        },
+        { status: 503 }
+      );
+    }
+
+    await addNote(venue.recordId, body);
+    const notes = await getApprovedNotesBySlug(body.slug);
     return NextResponse.json({
       success: true,
-      notes: updatedNotes,
+      notes,
+      message: 'Thanks. Your note was sent for moderation.',
     });
   } catch (error) {
-    console.error('Error processing note:', error);
+    console.error('Error processing note', error);
     return NextResponse.json(
-      { success: false, notes: [] },
+      { success: false, notes: [], message: 'We could not save that note right now.' },
       { status: 500 }
     );
   }
 }
 
-export async function GET() {
-  // Return all notes (for debugging/development)
-  return NextResponse.json({
-    notes: Object.fromEntries(notesStore),
-  });
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const slug = searchParams.get('slug');
+
+  if (!slug) {
+    return NextResponse.json({ success: false, notes: [] }, { status: 400 });
+  }
+
+  const notes = await getApprovedNotesBySlug(slug);
+  return NextResponse.json({ success: true, notes });
 }

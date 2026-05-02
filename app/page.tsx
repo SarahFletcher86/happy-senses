@@ -1,25 +1,22 @@
-import { loadVenues, getCategories, getCities } from '@/lib/venues';
 import { DirectoryClient } from '@/components/venues/DirectoryClient';
-import type { VenueFilters, SortOption } from '@/lib/types';
+import { getCategories, getCities, loadVenueDataState } from '@/lib/venues';
+import type { SortOption, VenueFilters } from '@/lib/types';
 
 interface HomePageProps {
-  searchParams?: {
+  searchParams?: Promise<{
     search?: string;
     category?: string;
     city?: string;
     sort?: string;
-  };
+  }>;
 }
 
 export default async function HomePage({ searchParams }: HomePageProps) {
-  const params = searchParams ?? {};
-  
-  // Load all venues
-  const allVenues = await loadVenues();
+  const params = (await searchParams) ?? {};
+  const venueState = await loadVenueDataState();
   const categories = await getCategories();
   const cities = await getCities();
-  
-  // Build filters from URL params
+
   const filters: VenueFilters = {
     search: params.search || '',
     category: params.category || 'All',
@@ -32,23 +29,23 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     fenced: null,
     not_near_water: null,
   };
-  
+
   const sortBy: SortOption = (params.sort as SortOption) || 'sensory_score';
-  
+
   return (
     <DirectoryClient
-      venues={allVenues}
+      venues={venueState.venues}
       categories={categories}
       cities={cities}
       initialFilters={filters}
       initialSort={sortBy}
+      warning={venueState.warning}
     />
   );
 }
 
-export function generateMetadata() {
-  return {
-    title: 'Happy Senses - Inclusive Spaces Directory',
-    description: 'Discover sensory-friendly and accessible spaces across Ontario. Find venues with quiet rooms, trained staff, and accommodations for diverse needs.',
-  };
-}
+export const metadata = {
+  title: 'Happy Senses | Sensory-friendly spaces for everyone',
+  description:
+    'Explore sensory-friendly community spaces with calmer lighting, quieter environments, and accessibility details for families.',
+};

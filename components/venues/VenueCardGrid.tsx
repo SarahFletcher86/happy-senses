@@ -9,38 +9,32 @@ interface VenueCardGridProps {
 }
 
 export function VenueCardGrid({ venues }: VenueCardGridProps) {
-  // Local state for optimistic UI updates
   const [localVotes, setLocalVotes] = useState<Record<string, { upvotes: number; downvotes: number }>>({});
 
-  const handleVote = async (slug: string, direction: 'up' | 'down') => {
+  const handleVote = async (slug: string, type: 'up' | 'down') => {
     try {
       const response = await fetch('/api/vote', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ slug, direction }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, type }),
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setLocalVotes(prev => ({
-          ...prev,
-          [slug]: { upvotes: data.upvotes, downvotes: data.downvotes },
-        }));
-      }
+
+      if (!response.ok) return;
+      const data = await response.json();
+      setLocalVotes((current) => ({
+        ...current,
+        [slug]: { upvotes: data.upvotes, downvotes: data.downvotes },
+      }));
     } catch (error) {
-      console.error('Error submitting vote:', error);
+      console.error('Error submitting vote', error);
     }
   };
 
-  if (venues.length === 0) {
-    return null;
-  }
+  if (venues.length === 0) return null;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {venues.map(venue => (
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {venues.map((venue) => (
         <VenueCard
           key={venue.slug}
           venue={venue}
