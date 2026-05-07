@@ -28,6 +28,7 @@ const config: Config = {
         'soft-peach': 'var(--soft-peach)',
         'gentle-green': 'var(--gentle-green)',
         'light-sky-blue': 'var(--light-sky-blue)',
+        mint: 'var(--mint)',
         charcoal: 'var(--charcoal)',
         'mid-gray': 'var(--mid-gray)',
         cream: 'var(--cream)',

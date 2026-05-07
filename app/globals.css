@@ -1,7 +1,9 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
+    --mint: #EDF4ED;
     --calm-teal: #5BB8B7;
     --calm-teal-deep: #4FA3A2;
     --warm-mustard: #F5D86C;
@@ -70,7 +72,7 @@
   }
 
   html {
-    background: var(--cream);
+    background: var(--mint);
   }
 
   html.dark {
@@ -82,7 +84,7 @@
     font-family: var(--font-quicksand), 'Trebuchet MS', Arial, sans-serif;
     line-height: 1.6;
     letter-spacing: 0;
-    background: var(--cream);
+    background: var(--mint);
     color: var(--charcoal);
   }
 
