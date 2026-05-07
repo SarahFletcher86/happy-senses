@@ -34,10 +34,10 @@ export function ThemeControls() {
         onClick={toggleReadingMode}
         aria-pressed={isEasierReading}
         className={cn(
-          'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold',
+          'inline-flex items-center gap-1.5 rounded-[10px] border px-[18px] py-[9px] text-[13px] font-semibold',
           isEasierReading
             ? 'border-calm-teal bg-calm-teal text-white'
-            : 'border-[rgba(44,51,56,0.12)] bg-white/70 text-charcoal hover:border-calm-teal dark:border-white/10 dark:bg-dark-surface dark:text-dark-text'
+            : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-white/12 dark:bg-white/6 dark:text-dark-text-primary dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
         )}
       >
         <Type className="h-4 w-4" />
@@ -48,10 +48,10 @@ export function ThemeControls() {
         onClick={toggleDarkMode}
         aria-pressed={isDark}
         className={cn(
-          'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold',
+          'inline-flex items-center gap-1.5 rounded-[10px] border px-[18px] py-[9px] text-[13px] font-semibold',
           isDark
-            ? 'border-warm-mustard bg-warm-mustard text-charcoal'
-            : 'border-[rgba(44,51,56,0.12)] bg-white/70 text-charcoal hover:border-warm-mustard dark:border-white/10 dark:bg-dark-surface dark:text-dark-text'
+            ? 'border-dark-cta-teal bg-dark-cta-teal text-[#14201F] shadow-[0_2px_8px_rgba(111,207,206,0.3)] hover:bg-[#8FE0DF]'
+            : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-white/12 dark:bg-white/6 dark:text-dark-text-primary dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
         )}
       >
         {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ExternalLink, MapPin, ThumbsDown, ThumbsUp, Star } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getDisplaySensoryValue } from '@/lib/sensory-utils';
 import { SafetyBadge } from './SafetyBadge';
@@ -10,67 +10,76 @@ import type { Venue } from '@/lib/types';
 
 interface VenueCardProps {
   venue: Venue;
-  onUpvote?: (slug: string) => void;
-  onDownvote?: (slug: string) => void;
   localVotes?: { upvotes: number; downvotes: number };
 }
 
 const categoryStyles: Record<string, string> = {
   Library:
-    'bg-[rgba(184,221,232,0.5)] text-[#2B6478] dark:bg-[rgba(184,221,232,0.10)] dark:text-[#C4E2EE]',
+    'bg-[rgba(184,221,232,0.60)] text-[#2B6478] dark:bg-[rgba(184,221,232,0.20)] dark:text-[#C4E2EE]',
   Museum:
-    'bg-[rgba(244,168,146,0.3)] text-[#B25938] dark:bg-[rgba(244,168,146,0.10)] dark:text-[#F8C4B0]',
+    'bg-[rgba(244,168,146,0.40)] text-[#B25938] dark:bg-[rgba(244,168,146,0.20)] dark:text-[#F8C4B0]',
   Park:
-    'bg-[rgba(168,216,168,0.3)] text-[#3F7A3F] dark:bg-[rgba(168,216,168,0.08)] dark:text-[#B5DCB5]',
+    'bg-[rgba(168,216,168,0.40)] text-[#3F7A3F] dark:bg-[rgba(168,216,168,0.20)] dark:text-[#B5DCB5]',
   'Community Centre':
-    'bg-[rgba(91,184,183,0.18)] text-[#2F7372] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#8DD3D2]',
+    'bg-[rgba(91,184,183,0.50)] text-[#155251] dark:bg-[rgba(91,184,183,0.28)] dark:text-[#8DD3D2]',
   'Cafe / Restaurant':
-    'bg-[rgba(229,185,98,0.22)] text-[#8A631E] dark:bg-[rgba(229,185,98,0.12)] dark:text-[#F2D08B]',
-  'Indoor Play':
-    'bg-[rgba(244,168,146,0.24)] text-[#B25938] dark:bg-[rgba(244,168,146,0.12)] dark:text-[#F8C4B0]',
+    'bg-[rgba(245,216,108,0.55)] text-[#6B5418] dark:bg-[rgba(245,216,108,0.22)] dark:text-[#F5D86C]',
 };
 
 const tierStyles: Record<string, string> = {
-  'Trusted ✓': 'bg-gentle-green text-[#305C30]',
-  'Promising ⚡': 'bg-warm-mustard text-[#63450A]',
-  'Help us verify ?': 'bg-soft-peach text-[#823E25]',
+  '✓ Trusted': 'bg-[rgba(168,216,168,0.45)] text-[#2B5C2B] dark:bg-[rgba(168,216,168,0.22)] dark:text-[#DDF2DD]',
+  Promising: 'bg-[rgba(245,216,108,0.65)] text-[#6B5418] dark:bg-[rgba(245,216,108,0.26)] dark:text-[#F8E1A5]',
+  'Help us verify':
+    'bg-[rgba(244,168,146,0.45)] text-[#8B3F22] dark:bg-[rgba(244,168,146,0.22)] dark:text-[#FCD8C8]',
 };
 
-export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCardProps) {
+export function VenueCard({ venue, localVotes }: VenueCardProps) {
   const upvotes = localVotes?.upvotes ?? venue.community_upvotes;
   const downvotes = localVotes?.downvotes ?? venue.community_downvotes;
-  const helpful = upvotes - downvotes;
+  const totalCommunityVotes = upvotes + downvotes;
+  const tierLabel = venue.tier || 'Help us verify';
+  const activeAmenities = [
+    venue.sens_quiet_room ? <SensoryPill key="quiet-room" type="quiet_room" available={venue.sens_quiet_room} /> : null,
+    venue.sens_headphones ? <SensoryPill key="headphones" type="headphones" available={venue.sens_headphones} /> : null,
+    venue.sens_staff_trained ? (
+      <SensoryPill key="staff-trained" type="staff_trained" available={venue.sens_staff_trained} />
+    ) : null,
+    venue.sens_certification ? <SensoryPill key="certified" type="certified" available /> : null,
+    venue.fenced ? <SafetyBadge key="fenced" type="fenced" value={venue.fenced} /> : null,
+    venue.accessible ? <SafetyBadge key="accessible" type="accessible" value={venue.accessible} /> : null,
+    venue.near_water === false ? <SafetyBadge key="near-water" type="near_water" value={false} /> : null,
+  ].filter(Boolean);
 
   return (
     <Link
       href={`/venues/${venue.slug}`}
-      className="group block rounded-[28px] border border-[rgba(44,51,56,0.08)] bg-white p-5 shadow-card transition hover:translate-y-[-3px] hover:border-calm-teal dark:border-white/10 dark:bg-dark-surface"
+      className="group flex h-full flex-col gap-[14px] rounded-2xl border border-border-subtle bg-white p-[22px] transition duration-200 hover:-translate-y-0.5 hover:border-calm-teal hover:shadow-[0_8px_24px_rgba(91,184,183,0.12)] dark:border-dark-border dark:bg-dark-card dark:shadow-[0_2px_6px_rgba(0,0,0,0.3)] dark:hover:border-dark-cta-teal dark:hover:shadow-[0_12px_32px_rgba(111,207,206,0.18)]"
     >
       <div className="flex items-start justify-between gap-3">
         <span
           className={cn(
-            'inline-flex rounded-full px-3 py-1.5 text-xs font-semibold',
+            'inline-flex items-center rounded-full px-3 py-[5px] text-[12px] font-semibold',
             categoryStyles[venue.category] ??
-              'bg-[rgba(91,184,183,0.15)] text-[#2F7372] dark:bg-[rgba(91,184,183,0.1)] dark:text-[#8DD3D2]'
+              'bg-[rgba(142,151,163,0.18)] text-[#5F6873] dark:bg-[rgba(142,151,163,0.16)] dark:text-[#D5D9DE]'
           )}
         >
           {venue.category}
         </span>
         <span
           className={cn(
-            'inline-flex rounded-full px-3 py-1.5 text-xs font-semibold',
-            tierStyles[venue.tier] ?? tierStyles['Help us verify ?']
+            'inline-flex items-center rounded-full px-3 py-[5px] text-[11px] font-semibold',
+            tierStyles[tierLabel] ?? tierStyles['Help us verify']
           )}
         >
-          {venue.tier}
+          {tierLabel}
         </span>
       </div>
 
-      <div className="mt-4">
-        <h2 className="text-xl font-bold text-charcoal transition group-hover:text-calm-teal dark:text-dark-text">
+      <div>
+        <h2 className="text-[19px] font-bold leading-[1.3] tracking-[-0.2px] text-charcoal transition group-hover:text-calm-teal dark:text-dark-text-heading dark:group-hover:text-dark-cta-teal">
           {venue.name}
         </h2>
-        <div className="mt-2 flex items-start gap-2 text-sm text-mid-gray dark:text-dark-text-soft">
+        <div className="mt-1 inline-flex items-start gap-1 text-[13px] font-medium text-mid-gray dark:text-dark-text-muted">
           <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <span>
             {[venue.city, venue.address].filter(Boolean).join(' · ') || 'Address details coming soon'}
@@ -78,61 +87,29 @@ export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCard
         </div>
       </div>
 
-      <div className="mt-5 space-y-3">
-        <SensoryDots label="Quiet level" emoji="🤫" value={venue.sens_noise_1to5} />
-        <SensoryDots label="Calm lighting" emoji="💡" value={venue.sens_light_1to5} />
+      <div className="flex flex-col gap-[9px] border-y border-border-subtle py-3 dark:border-dark-border">
+        <SensoryDots label="Quiet" emoji="🤫" value={venue.sens_noise_1to5} />
+        <SensoryDots label="Calm light" emoji="💡" value={venue.sens_light_1to5} />
         <SensoryDots label="Low crowd" emoji="👥" value={venue.sens_crowd_1to5} />
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        <SensoryPill type="quiet_room" available={venue.sens_quiet_room} />
-        <SensoryPill type="headphones" available={venue.sens_headphones} />
-        <SensoryPill type="staff_trained" available={venue.sens_staff_trained} />
-        <SensoryPill type="certified" available={Boolean(venue.sens_certification)} />
-        <SafetyBadge type="fenced" value={venue.fenced} />
-        <SafetyBadge type="near_water" value={venue.near_water} />
-        <SafetyBadge type="accessible" value={venue.accessible} />
-      </div>
+      {activeAmenities.length > 0 ? <div className="flex flex-wrap gap-2">{activeAmenities}</div> : null}
 
-      <div className="mt-5 flex items-center justify-between border-t border-[rgba(44,51,56,0.08)] pt-4 text-sm dark:border-white/10">
-        <div className="flex items-center gap-2 text-mid-gray dark:text-dark-text-soft">
-          <button
-            type="button"
-            onClick={(event) => {
-              event.preventDefault();
-              onUpvote?.(venue.slug);
-            }}
-            className="inline-flex items-center gap-1 rounded-full px-2 py-1 hover:bg-[rgba(168,216,168,0.2)] dark:hover:bg-[rgba(168,216,168,0.12)]"
-          >
-            <ThumbsUp className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={(event) => {
-              event.preventDefault();
-              onDownvote?.(venue.slug);
-            }}
-            className="inline-flex items-center gap-1 rounded-full px-2 py-1 hover:bg-[rgba(244,168,146,0.18)] dark:hover:bg-[rgba(244,168,146,0.12)]"
-          >
-            <ThumbsDown className="h-4 w-4" />
-          </button>
-          <span className="font-semibold text-charcoal dark:text-dark-text">{helpful}</span>
-          <span>helpful votes</span>
-        </div>
-
-        <div className="flex items-center gap-3 text-mid-gray dark:text-dark-text-soft">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 text-[12px] font-medium text-mid-gray dark:text-dark-text-muted">
+        <span>{totalCommunityVotes} community votes</span>
+        <span className="inline-flex items-center gap-1 text-mid-gray dark:text-dark-text-muted">
           {venue.google_rating ? (
-            <span className="inline-flex items-center gap-1">
-              <Star className="h-4 w-4 fill-warm-mustard text-warm-mustard" />
-              {venue.google_rating.toFixed(1)} ({venue.google_review_count ?? 0})
-            </span>
-          ) : null}
-          {venue.website ? (
-            <span className="inline-flex items-center gap-1 text-calm-teal">
-              Website <ExternalLink className="h-4 w-4" />
-            </span>
-          ) : null}
-        </div>
+            <>
+              <span className="text-warm-mustard">★</span>
+              <strong className="font-semibold text-charcoal dark:text-dark-text-heading">
+                {venue.google_rating.toFixed(1)}
+              </strong>
+              <span>· {venue.google_review_count ?? 0} Google reviews</span>
+            </>
+          ) : (
+            <span>No Google reviews yet</span>
+          )}
+        </span>
       </div>
     </Link>
   );
@@ -150,12 +127,12 @@ function SensoryDots({
   const display = getDisplaySensoryValue(value);
 
   return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="min-w-0 text-sm font-semibold text-charcoal dark:text-dark-text">
-        <span className="mr-2">{emoji}</span>
+    <div className="flex items-center gap-[10px] text-[13px] text-charcoal dark:text-dark-text-primary">
+      <span className="w-5 text-center text-[14px]">{emoji}</span>
+      <span className="min-w-[50px] text-[11px] font-medium uppercase tracking-[0.2px] text-mid-gray dark:text-dark-text-dim">
         {label}
-      </div>
-      <div className="flex items-center gap-1.5">
+      </span>
+      <div className="flex flex-1 items-center gap-1">
         {Array.from({ length: 5 }).map((_, index) => {
           const filled = display !== null && index < display;
           const filledClass =
@@ -169,15 +146,16 @@ function SensoryDots({
             <span
               key={`${label}-${index}`}
               className={cn(
-                'h-3 w-3 rounded-full',
-                filled
-                  ? filledClass
-                  : 'bg-[rgba(142,151,163,0.28)] dark:bg-[rgba(149,160,170,0.2)]'
+                'h-[13px] w-[13px] rounded-full',
+                filled ? filledClass : 'bg-[rgba(44,51,56,0.08)] dark:bg-[rgba(255,255,255,0.10)]'
               )}
             />
           );
         })}
       </div>
+      <span className="w-[26px] text-right text-[11px] font-semibold text-mid-gray dark:text-dark-text-muted">
+        {display ?? 0}/5
+      </span>
     </div>
   );
 }

@@ -29,8 +29,8 @@ export function SafetyBadge({ type, value, heightValue, className }: SafetyBadge
       className={cn(
         'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold',
         active
-          ? 'border-[rgba(168,216,168,0.18)] bg-[rgba(168,216,168,0.22)] text-[#3F7A3F] dark:border-[rgba(168,216,168,0.18)] dark:bg-[rgba(168,216,168,0.12)] dark:text-[#B5DCB5]'
-          : 'border-[rgba(44,51,56,0.08)] bg-light-cream text-mid-gray dark:border-white/10 dark:bg-dark-bg dark:text-dark-text-soft',
+          ? 'border-[rgba(91,184,183,0.25)] bg-[rgba(91,184,183,0.10)] text-[#2F7372] dark:border-[rgba(91,184,183,0.30)] dark:bg-[rgba(91,184,183,0.14)] dark:text-[#A3DEDD]'
+          : 'border-[rgba(91,184,183,0.18)] bg-[rgba(91,184,183,0.06)] text-[#5A8E8D] dark:border-[rgba(91,184,183,0.18)] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#7FB9B8]',
         className
       )}
     >

@@ -12,8 +12,8 @@ interface SensoryBadgeProps {
 }
 
 const sensoryConfig = {
-  noise: { icon: MoonStar, label: 'Quiet level', emoji: '🤫' },
-  light: { icon: SunMedium, label: 'Calm lighting', emoji: '💡' },
+  noise: { icon: MoonStar, label: 'Quiet', emoji: '🤫' },
+  light: { icon: SunMedium, label: 'Calm light', emoji: '💡' },
   crowd: { icon: Users, label: 'Low crowd', emoji: '👥' },
 } as const;
 
@@ -73,8 +73,8 @@ export function SensoryPill({ type, available, className }: SensoryPillProps) {
       className={cn(
         'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold',
         active
-          ? 'border-[rgba(91,184,183,0.2)] bg-[rgba(91,184,183,0.14)] text-[#2F7372] dark:border-[rgba(91,184,183,0.22)] dark:bg-[rgba(91,184,183,0.12)] dark:text-[#8DD3D2]'
-          : 'border-[rgba(44,51,56,0.08)] bg-light-cream text-mid-gray dark:border-white/10 dark:bg-dark-bg dark:text-dark-text-soft',
+          ? 'border-[rgba(91,184,183,0.25)] bg-[rgba(91,184,183,0.10)] text-[#2F7372] dark:border-[rgba(91,184,183,0.30)] dark:bg-[rgba(91,184,183,0.14)] dark:text-[#A3DEDD]'
+          : 'border-[rgba(91,184,183,0.18)] bg-[rgba(91,184,183,0.06)] text-[#5A8E8D] dark:border-[rgba(91,184,183,0.18)] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#7FB9B8]',
         className
       )}
     >

@@ -87,8 +87,8 @@ export function DirectoryClient({
           <section className="grid gap-6">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h1 className="text-3xl font-bold text-charcoal dark:text-dark-text">Find a calmer outing</h1>
-                <p className="mt-2 max-w-2xl text-sm leading-7 text-mid-gray dark:text-dark-text-soft">
+                <h1 className="text-3xl font-bold text-charcoal dark:text-dark-text-heading">Find a calmer outing</h1>
+                <p className="mt-2 max-w-2xl text-sm leading-7 text-mid-gray dark:text-dark-text-muted">
                   Ratings shown here are inverted at display time so higher scores mean more sensory-friendly:
                   quieter, calmer lighting, and lower crowd levels.
                 </p>
@@ -98,11 +98,11 @@ export function DirectoryClient({
             <VenueCardGrid venues={sortedVenues} />
 
             {sortedVenues.length === 0 ? (
-              <div className="rounded-[28px] border border-dashed border-[rgba(44,51,56,0.16)] bg-white/70 p-10 text-center shadow-card dark:border-white/10 dark:bg-dark-surface/80">
-                <p className="text-lg font-semibold text-charcoal dark:text-dark-text">
+              <div className="rounded-2xl border border-dashed border-[rgba(44,51,56,0.16)] bg-white p-10 text-center shadow-[0_2px_10px_rgba(44,51,56,0.03)] dark:border-dark-border dark:bg-dark-card">
+                <p className="text-lg font-semibold text-charcoal dark:text-dark-text-heading">
                   No venues match those filters yet.
                 </p>
-                <p className="mt-2 text-sm text-mid-gray dark:text-dark-text-soft">
+                <p className="mt-2 text-sm text-mid-gray dark:text-dark-text-muted">
                   Try a broader city, a different category, or remove a quick filter.
                 </p>
               </div>
@@ -111,8 +111,8 @@ export function DirectoryClient({
         </div>
       </div>
 
-      <footer className="mt-12 border-t border-[rgba(44,51,56,0.08)] bg-cream/90 dark:border-white/10 dark:bg-dark-surface/80">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm text-mid-gray dark:text-dark-text-soft sm:flex-row sm:items-center sm:justify-between">
+      <footer className="mt-12 border-t border-border-subtle bg-cream dark:border-dark-border dark:bg-dark-bg">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm text-mid-gray dark:text-dark-text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>Sensory-friendly spaces for everyone</p>
           <div className="flex flex-wrap items-center gap-4">
             <a href="/about">About</a>

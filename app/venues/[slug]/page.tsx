@@ -36,19 +36,20 @@ export const dynamicParams = true;
 
 const categoryStyles: Record<string, string> = {
   Library:
-    'bg-[rgba(184,221,232,0.5)] text-[#2B6478] dark:bg-[rgba(184,221,232,0.10)] dark:text-[#C4E2EE]',
+    'bg-[rgba(184,221,232,0.60)] text-[#2B6478] dark:bg-[rgba(184,221,232,0.20)] dark:text-[#C4E2EE]',
   Museum:
-    'bg-[rgba(244,168,146,0.3)] text-[#B25938] dark:bg-[rgba(244,168,146,0.10)] dark:text-[#F8C4B0]',
+    'bg-[rgba(244,168,146,0.40)] text-[#B25938] dark:bg-[rgba(244,168,146,0.20)] dark:text-[#F8C4B0]',
   Park:
-    'bg-[rgba(168,216,168,0.3)] text-[#3F7A3F] dark:bg-[rgba(168,216,168,0.08)] dark:text-[#B5DCB5]',
+    'bg-[rgba(168,216,168,0.40)] text-[#3F7A3F] dark:bg-[rgba(168,216,168,0.20)] dark:text-[#B5DCB5]',
   'Community Centre':
-    'bg-[rgba(91,184,183,0.18)] text-[#2F7372] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#8DD3D2]',
+    'bg-[rgba(91,184,183,0.50)] text-[#155251] dark:bg-[rgba(91,184,183,0.28)] dark:text-[#8DD3D2]',
 };
 
 const tierStyles: Record<string, string> = {
-  'Trusted ✓': 'bg-gentle-green text-[#305C30]',
-  'Promising ⚡': 'bg-warm-mustard text-[#63450A]',
-  'Help us verify ?': 'bg-soft-peach text-[#823E25]',
+  '✓ Trusted': 'bg-[rgba(168,216,168,0.45)] text-[#2B5C2B] dark:bg-[rgba(168,216,168,0.22)] dark:text-[#DDF2DD]',
+  Promising: 'bg-[rgba(245,216,108,0.65)] text-[#6B5418] dark:bg-[rgba(245,216,108,0.26)] dark:text-[#F8E1A5]',
+  'Help us verify':
+    'bg-[rgba(244,168,146,0.45)] text-[#8B3F22] dark:bg-[rgba(244,168,146,0.22)] dark:text-[#FCD8C8]',
 };
 
 export async function generateStaticParams() {
@@ -73,6 +74,7 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
   const notes = await getApprovedNotesBySlug(slug);
   const mapsQuery = encodeURIComponent([venue.name, venue.address, venue.city].filter(Boolean).join(', '));
   const website = venue.website || '';
+  const tierLabel = venue.tier || 'Help us verify';
 
   return (
     <main className="min-h-screen">
@@ -91,7 +93,7 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.05fr_1.35fr]">
-          <section className="rounded-[32px] border border-[rgba(44,51,56,0.08)] bg-white p-5 shadow-card dark:border-white/10 dark:bg-dark-surface">
+          <section className="rounded-[32px] border border-border-subtle bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
             <div className="flex h-[320px] items-center justify-center rounded-[28px] bg-[linear-gradient(135deg,rgba(184,221,232,0.35),rgba(168,216,168,0.22),rgba(255,252,247,1))] text-center dark:bg-[linear-gradient(135deg,rgba(91,184,183,0.16),rgba(26,31,35,0.92))]">
               <div className="max-w-xs">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-mid-gray dark:text-dark-text-soft">
@@ -104,13 +106,13 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
             </div>
           </section>
 
-          <section className="rounded-[32px] border border-[rgba(44,51,56,0.08)] bg-white p-6 shadow-card dark:border-white/10 dark:bg-dark-surface">
+          <section className="rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={cn(
                   'rounded-full px-3 py-1.5 text-xs font-semibold',
                   categoryStyles[venue.category] ??
-                    'bg-[rgba(91,184,183,0.18)] text-[#2F7372] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#8DD3D2]'
+                    'bg-[rgba(142,151,163,0.18)] text-[#5F6873] dark:bg-[rgba(142,151,163,0.16)] dark:text-[#D5D9DE]'
                 )}
               >
                 {venue.category}
@@ -118,29 +120,32 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
               <span
                 className={cn(
                   'rounded-full px-3 py-1.5 text-xs font-semibold',
-                  tierStyles[venue.tier] ?? tierStyles['Help us verify ?']
+                  tierStyles[tierLabel] ?? tierStyles['Help us verify']
                 )}
               >
-                {venue.tier}
+                {tierLabel}
               </span>
             </div>
 
-            <h1 className="mt-4 text-4xl font-bold tracking-tight text-charcoal dark:text-dark-text">
+            <h1 className="mt-4 text-4xl font-bold tracking-tight text-charcoal dark:text-dark-text-heading">
               {venue.name}
             </h1>
-            <div className="mt-3 flex items-start gap-2 text-mid-gray dark:text-dark-text-soft">
+            <div className="mt-3 flex items-start gap-2 text-mid-gray dark:text-dark-text-muted">
               <MapPin className="mt-0.5 h-5 w-5 flex-shrink-0" />
               <p>{[venue.address, venue.city].filter(Boolean).join(', ') || 'Location details coming soon'}</p>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-mid-gray dark:text-dark-text-soft">
+            <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-mid-gray dark:text-dark-text-muted">
               {venue.google_rating ? (
                 <span className="inline-flex items-center gap-2">
-                  <Star className="h-4 w-4 fill-warm-mustard text-warm-mustard" />
-                  {venue.google_rating.toFixed(1)} from {venue.google_review_count ?? 0} reviews
+                  <span className="text-warm-mustard">★</span>
+                  <strong className="font-semibold text-charcoal dark:text-dark-text-heading">
+                    {venue.google_rating.toFixed(1)}
+                  </strong>
+                  <span>· {venue.google_review_count ?? 0} Google reviews</span>
                 </span>
               ) : null}
-              <span>{venue.community_upvotes - venue.community_downvotes} helpful votes</span>
+              <span>{venue.community_upvotes + venue.community_downvotes} community votes</span>
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -167,18 +172,18 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <section className="rounded-[32px] border border-[rgba(44,51,56,0.08)] bg-white p-6 shadow-card dark:border-white/10 dark:bg-dark-surface">
-            <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text">AI sensory summary</h2>
-            <p className="mt-4 text-base leading-8 text-charcoal dark:text-dark-text">
+          <section className="rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+            <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">AI sensory summary</h2>
+            <p className="mt-4 text-base leading-8 text-charcoal dark:text-dark-text-primary">
               {venue.sens_accessibility_summary ||
                 venue.ai_accessibility_summary ||
                 'We do not have a summary yet, but the structured sensory fields below still help set expectations.'}
             </p>
           </section>
 
-          <section className="rounded-[32px] border border-[rgba(44,51,56,0.08)] bg-white p-6 shadow-card dark:border-white/10 dark:bg-dark-surface">
-            <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text">Sensory-Friendly Certified™</h2>
-            <p className="mt-3 text-sm leading-7 text-mid-gray dark:text-dark-text-soft">
+          <section className="rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+            <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">Sensory-Friendly Certified™</h2>
+            <p className="mt-3 text-sm leading-7 text-mid-gray dark:text-dark-text-muted">
               Are you the venue owner? Learn how certification can make your space easier to trust and easier to find.
             </p>
             <Link
@@ -212,8 +217,8 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
           />
         </section>
 
-        <section className="mt-6 rounded-[32px] border border-[rgba(44,51,56,0.08)] bg-white p-6 shadow-card dark:border-white/10 dark:bg-dark-surface">
-          <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text">Sensory accommodations</h2>
+        <section className="mt-6 rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+          <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">Sensory accommodations</h2>
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <SensoryPill type="quiet_room" available={venue.sens_quiet_room} />
             <SensoryPill type="headphones" available={venue.sens_headphones} />
@@ -247,12 +252,12 @@ function QuickInfo({
   href?: string;
 }) {
   const content = (
-    <div className="rounded-2xl border border-[rgba(44,51,56,0.08)] bg-light-cream p-4 dark:border-white/10 dark:bg-dark-bg">
-      <div className="flex items-center gap-2 text-sm font-semibold text-charcoal dark:text-dark-text">
+    <div className="rounded-2xl border border-border-subtle bg-light-cream p-4 dark:border-dark-border dark:bg-dark-bg">
+      <div className="flex items-center gap-2 text-sm font-semibold text-charcoal dark:text-dark-text-heading">
         <Icon className="h-4 w-4" />
         {label}
       </div>
-      <p className="mt-2 text-sm text-mid-gray dark:text-dark-text-soft">{value}</p>
+      <p className="mt-2 text-sm text-mid-gray dark:text-dark-text-muted">{value}</p>
     </div>
   );
 
@@ -279,13 +284,13 @@ function SensoryCard({
   const percent = (display / 5) * 100;
 
   return (
-    <article className="rounded-[28px] border border-[rgba(44,51,56,0.08)] bg-white p-6 shadow-card dark:border-white/10 dark:bg-dark-surface">
+    <article className="rounded-[28px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xl font-bold text-charcoal dark:text-dark-text">
+        <h2 className="text-xl font-bold text-charcoal dark:text-dark-text-heading">
           <span className="mr-2">{emoji}</span>
           {title}
         </h2>
-        <span className="text-sm font-semibold text-mid-gray dark:text-dark-text-soft">
+        <span className="text-sm font-semibold text-mid-gray dark:text-dark-text-muted">
           {display || '?'} / 5
         </span>
       </div>
@@ -298,7 +303,7 @@ function SensoryCard({
           style={{ width: `${percent}%` }}
         />
       </div>
-      <p className="mt-4 text-sm leading-7 text-mid-gray dark:text-dark-text-soft">{description}</p>
+      <p className="mt-4 text-sm leading-7 text-mid-gray dark:text-dark-text-muted">{description}</p>
     </article>
   );
 }

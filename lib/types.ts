@@ -14,7 +14,7 @@ export type SensoryCertification =
   | 'verified'
   | undefined;
 
-export type VenueTier = 'Trusted ✓' | 'Promising ⚡' | 'Help us verify ?' | string;
+export type VenueTier = '✓ Trusted' | 'Promising' | 'Help us verify' | string;
 
 export interface VenueCore {
   recordId?: string;

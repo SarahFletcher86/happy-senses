@@ -74,8 +74,8 @@ export function VenueDetailClient({
 
   return (
     <>
-      <div className="rounded-[28px] border border-[rgba(44,51,56,0.08)] bg-white p-5 shadow-card dark:border-white/10 dark:bg-dark-surface">
-        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-mid-gray dark:text-dark-text-soft">
+      <div className="rounded-[28px] border border-border-subtle bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-mid-gray dark:text-dark-text-muted">
           Was this helpful?
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -98,15 +98,15 @@ export function VenueDetailClient({
         </div>
       </div>
 
-      <section className="rounded-[28px] border border-[rgba(44,51,56,0.08)] bg-white p-6 shadow-card dark:border-white/10 dark:bg-dark-surface">
+      <section className="rounded-[28px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text">Community notes</h2>
-            <p className="text-sm text-mid-gray dark:text-dark-text-soft">
+            <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">Community notes</h2>
+            <p className="text-sm text-mid-gray dark:text-dark-text-muted">
               Approved experiences from families and visitors appear here.
             </p>
           </div>
-          <span className="text-sm font-semibold text-mid-gray dark:text-dark-text-soft">
+          <span className="text-sm font-semibold text-mid-gray dark:text-dark-text-muted">
             {notes.length} approved note{notes.length === 1 ? '' : 's'}
           </span>
         </div>
@@ -116,19 +116,19 @@ export function VenueDetailClient({
             notes.map((note) => (
               <article
                 key={note.id}
-                className="rounded-2xl border border-[rgba(44,51,56,0.08)] bg-light-cream p-4 dark:border-white/10 dark:bg-dark-bg"
+                className="rounded-2xl border border-border-subtle bg-light-cream p-4 dark:border-dark-border dark:bg-dark-bg"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <p className="font-semibold text-charcoal dark:text-dark-text">{note.displayName}</p>
-                  <p className="text-xs text-mid-gray dark:text-dark-text-soft">
+                  <p className="font-semibold text-charcoal dark:text-dark-text-heading">{note.displayName}</p>
+                  <p className="text-xs text-mid-gray dark:text-dark-text-muted">
                     {new Date(note.createdAt).toLocaleDateString()}
                   </p>
                 </div>
-                <p className="mt-2 text-sm leading-7 text-charcoal dark:text-dark-text">{note.noteText}</p>
+                <p className="mt-2 text-sm leading-7 text-charcoal dark:text-dark-text-primary">{note.noteText}</p>
               </article>
             ))
           ) : (
-            <div className="rounded-2xl border border-dashed border-[rgba(44,51,56,0.14)] p-5 text-sm text-mid-gray dark:border-white/10 dark:text-dark-text-soft">
+            <div className="rounded-2xl border border-dashed border-[rgba(44,51,56,0.14)] p-5 text-sm text-mid-gray dark:border-dark-border dark:text-dark-text-muted">
               No approved notes yet. You can be the first to share what the visit felt like.
             </div>
           )}
@@ -136,7 +136,7 @@ export function VenueDetailClient({
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="mb-2 block text-sm font-semibold text-charcoal dark:text-dark-text">
+            <label className="mb-2 block text-sm font-semibold text-charcoal dark:text-dark-text-heading">
               Add your experience
             </label>
             <textarea
@@ -144,7 +144,7 @@ export function VenueDetailClient({
               onChange={(event) => setNoteText(event.target.value)}
               required
               rows={5}
-              className="w-full rounded-2xl border border-[rgba(44,51,56,0.12)] bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-white/10 dark:bg-dark-bg dark:text-dark-text"
+              className="w-full rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
               placeholder="Share what felt calm, tricky, or especially helpful."
             />
           </div>
@@ -152,14 +152,14 @@ export function VenueDetailClient({
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              className="rounded-2xl border border-[rgba(44,51,56,0.12)] bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-white/10 dark:bg-dark-bg dark:text-dark-text"
+              className="rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
               placeholder="Your name (optional)"
             />
             <input
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               type="email"
-              className="rounded-2xl border border-[rgba(44,51,56,0.12)] bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-white/10 dark:bg-dark-bg dark:text-dark-text"
+              className="rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
               placeholder="Email for moderation follow-up (optional)"
             />
           </div>
@@ -172,9 +172,9 @@ export function VenueDetailClient({
               {submitting ? 'Sending…' : 'Submit note'}
             </button>
             {message ? (
-              <p className="text-sm text-mid-gray dark:text-dark-text-soft">{message}</p>
+              <p className="text-sm text-mid-gray dark:text-dark-text-muted">{message}</p>
             ) : (
-              <p className="text-sm text-mid-gray dark:text-dark-text-soft">
+              <p className="text-sm text-mid-gray dark:text-dark-text-muted">
                 Notes are reviewed before they appear publicly.
               </p>
             )}

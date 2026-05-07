@@ -44,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${quicksand.variable} ${lexend.variable}`}>
-      <body className="bg-cream font-sans text-charcoal antialiased dark:bg-dark-bg dark:text-dark-text">
+      <body className="bg-cream font-sans text-charcoal antialiased dark:bg-dark-bg dark:text-dark-text-primary">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}
       </body>

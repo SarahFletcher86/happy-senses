@@ -140,8 +140,12 @@ function getField(fields: Record<string, unknown>, keys: string[]): unknown {
 
 function normalizeTier(value: unknown): VenueTier {
   const tier = toStr(value);
-  if (!tier) return 'Help us verify ?';
-  return tier;
+  if (!tier) return 'Help us verify';
+
+  const lower = tier.toLowerCase();
+  if (lower.includes('trusted') || lower.includes('verified')) return '✓ Trusted';
+  if (lower.includes('promising') || lower.includes('likely')) return 'Promising';
+  return 'Help us verify';
 }
 
 export function computeOverallScore(venue: Partial<Venue>): number {
