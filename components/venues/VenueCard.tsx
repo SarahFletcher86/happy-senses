@@ -53,7 +53,7 @@ export function VenueCard({ venue, localVotes }: VenueCardProps) {
   return (
     <Link
       href={`/venues/${venue.slug}`}
-      className="group flex h-full flex-col gap-[14px] rounded-2xl border border-border-subtle bg-white p-[22px] transition duration-200 hover:-translate-y-0.5 hover:border-calm-teal hover:shadow-[0_8px_24px_rgba(91,184,183,0.12)] dark:border-dark-border dark:bg-dark-card dark:shadow-[0_2px_6px_rgba(0,0,0,0.3)] dark:hover:border-dark-cta-teal dark:hover:shadow-[0_12px_32px_rgba(111,207,206,0.18)]"
+      className="venue-card group flex h-full flex-col gap-[14px] rounded-2xl border border-border-subtle bg-white p-[22px] transition duration-200 hover:-translate-y-0.5 hover:border-calm-teal hover:shadow-[0_8px_24px_rgba(91,184,183,0.12)] dark:border-dark-border dark:bg-dark-card dark:shadow-[0_2px_6px_rgba(0,0,0,0.3)] dark:hover:border-dark-cta-teal dark:hover:shadow-[0_12px_32px_rgba(111,207,206,0.18)]"
     >
       <div className="flex items-start justify-between gap-3">
         <span
@@ -147,7 +147,7 @@ function SensoryDots({
               key={`${label}-${index}`}
               className={cn(
                 'h-[13px] w-[13px] rounded-full',
-                filled ? filledClass : 'bg-[rgba(44,51,56,0.08)] dark:bg-[rgba(255,255,255,0.10)]'
+                filled ? filledClass : 'bg-[#E0E5E0] dark:bg-[#3A4A50]'
               )}
             />
           );

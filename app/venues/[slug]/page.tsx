@@ -172,16 +172,16 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <section className="rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+          <section className="detail-section rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
             <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">AI sensory summary</h2>
             <p className="mt-4 text-base leading-8 text-charcoal dark:text-dark-text-primary">
               {venue.sens_accessibility_summary ||
                 venue.ai_accessibility_summary ||
-                'We do not have a summary yet, but the structured sensory fields below still help set expectations.'}
+                'AI summary not yet generated for this venue.'}
             </p>
           </section>
 
-          <section className="rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+          <section className="detail-section rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
             <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">Sensory-Friendly Certified™</h2>
             <p className="mt-3 text-sm leading-7 text-mid-gray dark:text-dark-text-muted">
               Are you the venue owner? Learn how certification can make your space easier to trust and easier to find.
@@ -252,7 +252,7 @@ function QuickInfo({
   href?: string;
 }) {
   const content = (
-    <div className="rounded-2xl border border-border-subtle bg-light-cream p-4 dark:border-dark-border dark:bg-dark-bg">
+    <div className="detail-subcard rounded-2xl border border-border-subtle bg-light-cream p-4 dark:border-dark-border dark:bg-dark-bg">
       <div className="flex items-center gap-2 text-sm font-semibold text-charcoal dark:text-dark-text-heading">
         <Icon className="h-4 w-4" />
         {label}
@@ -284,7 +284,7 @@ function SensoryCard({
   const percent = (display / 5) * 100;
 
   return (
-    <article className="rounded-[28px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+    <article className="detail-section rounded-[28px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-charcoal dark:text-dark-text-heading">
           <span className="mr-2">{emoji}</span>
@@ -294,7 +294,7 @@ function SensoryCard({
           {display || '?'} / 5
         </span>
       </div>
-      <div className="mt-4 h-3 rounded-full bg-[rgba(142,151,163,0.16)] dark:bg-[rgba(149,160,170,0.18)]">
+      <div className="mt-4 h-3 rounded-full bg-[#E0E5E0] dark:bg-[#3A4A50]">
         <div
           className={cn(
             'h-3 rounded-full',

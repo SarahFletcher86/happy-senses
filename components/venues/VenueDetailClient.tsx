@@ -74,7 +74,7 @@ export function VenueDetailClient({
 
   return (
     <>
-      <div className="rounded-[28px] border border-border-subtle bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
+      <div className="detail-section rounded-[28px] border border-border-subtle bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
         <p className="text-sm font-semibold uppercase tracking-[0.14em] text-mid-gray dark:text-dark-text-muted">
           Was this helpful?
         </p>
@@ -98,7 +98,7 @@ export function VenueDetailClient({
         </div>
       </div>
 
-      <section className="rounded-[28px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+      <section className="detail-section rounded-[28px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">Community notes</h2>
@@ -116,7 +116,7 @@ export function VenueDetailClient({
             notes.map((note) => (
               <article
                 key={note.id}
-                className="rounded-2xl border border-border-subtle bg-light-cream p-4 dark:border-dark-border dark:bg-dark-bg"
+                className="detail-subcard rounded-2xl border border-border-subtle bg-light-cream p-4 dark:border-dark-border dark:bg-dark-bg"
               >
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-semibold text-charcoal dark:text-dark-text-heading">{note.displayName}</p>
@@ -128,7 +128,7 @@ export function VenueDetailClient({
               </article>
             ))
           ) : (
-            <div className="rounded-2xl border border-dashed border-[rgba(44,51,56,0.14)] p-5 text-sm text-mid-gray dark:border-dark-border dark:text-dark-text-muted">
+            <div className="detail-subcard rounded-2xl border border-dashed border-[rgba(44,51,56,0.14)] p-5 text-sm text-mid-gray dark:border-dark-border dark:text-dark-text-muted">
               No approved notes yet. You can be the first to share what the visit felt like.
             </div>
           )}
@@ -144,7 +144,7 @@ export function VenueDetailClient({
               onChange={(event) => setNoteText(event.target.value)}
               required
               rows={5}
-              className="w-full rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
+              className="search-input w-full rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
               placeholder="Share what felt calm, tricky, or especially helpful."
             />
           </div>
@@ -152,14 +152,14 @@ export function VenueDetailClient({
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              className="rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
+              className="search-input rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
               placeholder="Your name (optional)"
             />
             <input
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               type="email"
-              className="rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
+              className="search-input rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 text-sm text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
               placeholder="Email for moderation follow-up (optional)"
             />
           </div>

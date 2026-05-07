@@ -1,6 +1,6 @@
 'use client';
 
-import { Accessibility, ShieldCheck, Waves, Ruler, TriangleAlert } from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EquipmentHeight } from '@/lib/types';
 
@@ -12,15 +12,14 @@ interface SafetyBadgeProps {
 }
 
 const config = {
-  accessible: { icon: Accessibility, emoji: '♿', label: 'Accessible' },
-  fenced: { icon: ShieldCheck, emoji: '🚧', label: 'Fenced' },
-  near_water: { icon: Waves, emoji: '🌊', label: 'Near water' },
-  equipment_height: { icon: Ruler, emoji: '📏', label: 'Equipment height' },
+  accessible: { emoji: '♿', label: 'Accessible' },
+  fenced: { emoji: '🚧', label: 'Fenced' },
+  near_water: { emoji: '🌊', label: 'Near water' },
+  equipment_height: { emoji: '📏', label: 'Equipment height' },
 } as const;
 
 export function SafetyBadge({ type, value, heightValue, className }: SafetyBadgeProps) {
   const item = config[type];
-  const Icon = item.icon;
   const active = type === 'equipment_height' ? Boolean(heightValue) : value === true;
   const label = type === 'equipment_height' ? `${item.label}: ${heightValue ?? 'Various'}` : item.label;
 
@@ -34,7 +33,6 @@ export function SafetyBadge({ type, value, heightValue, className }: SafetyBadge
         className
       )}
     >
-      <Icon className="h-3.5 w-3.5" />
       <span>{item.emoji}</span>
       <span>{label}</span>
     </div>

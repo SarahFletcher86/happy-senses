@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Moon, Sun, Type } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function ThemeControls() {
@@ -34,24 +34,26 @@ export function ThemeControls() {
         onClick={toggleReadingMode}
         aria-pressed={isEasierReading}
         className={cn(
-          'inline-flex items-center gap-1.5 rounded-[10px] border px-[18px] py-[9px] text-[13px] font-semibold',
+          'theme-toggle-pill inline-flex items-center gap-1.5 rounded-[10px] border px-[18px] py-[9px] text-[13px] font-semibold',
           isEasierReading
-            ? 'border-calm-teal bg-calm-teal text-white'
-            : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-white/12 dark:bg-white/6 dark:text-dark-text-primary dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
+            ? 'theme-toggle-pill--active border-calm-teal bg-calm-teal text-[#0E1417]'
+            : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-[#3A4A50] dark:bg-transparent dark:text-[#F2EBDD] dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
         )}
       >
-        <Type className="h-4 w-4" />
-        Aa Easier reading
+        <span aria-hidden="true" className="inline-block">
+          Aa
+        </span>
+        <span>Easier reading</span>
       </button>
       <button
         type="button"
         onClick={toggleDarkMode}
         aria-pressed={isDark}
         className={cn(
-          'inline-flex items-center gap-1.5 rounded-[10px] border px-[18px] py-[9px] text-[13px] font-semibold',
+          'theme-toggle-pill inline-flex items-center gap-1.5 rounded-[10px] border px-[18px] py-[9px] text-[13px] font-semibold',
           isDark
-            ? 'border-dark-cta-teal bg-dark-cta-teal text-[#14201F] shadow-[0_2px_8px_rgba(111,207,206,0.3)] hover:bg-[#8FE0DF]'
-            : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-white/12 dark:bg-white/6 dark:text-dark-text-primary dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
+            ? 'theme-toggle-pill--active border-dark-cta-teal bg-dark-cta-teal text-[#0E1417] shadow-[0_2px_8px_rgba(111,207,206,0.3)] hover:bg-[#8FE0DF]'
+            : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-[#3A4A50] dark:bg-transparent dark:text-[#F2EBDD] dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
         )}
       >
         {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

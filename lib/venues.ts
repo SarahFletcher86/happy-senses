@@ -84,6 +84,37 @@ function toStr(value: unknown): string {
   return str;
 }
 
+function toLongText(value: unknown): string {
+  if (typeof value === 'string') {
+    return toStr(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => toLongText(item))
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+  }
+
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+
+    for (const key of ['value', 'text', 'content', 'plain_text']) {
+      const nested = toLongText(record[key]);
+      if (nested) return nested;
+    }
+
+    return Object.values(record)
+      .map((item) => toLongText(item))
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+  }
+
+  return toStr(value);
+}
+
 function toNum(value: unknown): number | null {
   const str = toStr(value);
   if (!str) return null;
@@ -194,7 +225,7 @@ function normalizeVenue(input: Record<string, unknown> & { recordId?: string }):
     sens_last_verified: toStr(getField(input, ['sens_last_verified'])) || null,
     sens_score_avg: toNum(getField(input, ['sens_score_avg'])),
     sens_accessibility_summary:
-      toStr(
+      toLongText(
         getField(input, [
           'sens_accessibility_summary',
           'ai_accessibility_summary',
@@ -202,7 +233,7 @@ function normalizeVenue(input: Record<string, unknown> & { recordId?: string }):
         ])
       ) || null,
     ai_accessibility_summary:
-      toStr(
+      toLongText(
         getField(input, [
           'ai_accessibility_summary',
           'sens_accessibility_summary',

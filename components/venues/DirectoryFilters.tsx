@@ -52,7 +52,7 @@ export function DirectoryFilters({
   return (
     <section
       className={cn(
-        'rounded-2xl border border-border-subtle bg-white p-5 shadow-[0_2px_10px_rgba(44,51,56,0.03)] dark:border-dark-border dark:bg-dark-card',
+        'search-container rounded-2xl border border-border-subtle bg-white p-5 shadow-[0_2px_10px_rgba(44,51,56,0.03)] dark:border-dark-border dark:bg-dark-card',
         className
       )}
     >
@@ -64,7 +64,7 @@ export function DirectoryFilters({
             placeholder="Search by name, city, address, or vibe"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="w-full rounded-2xl border border-border-subtle bg-light-cream px-12 py-3 text-sm text-charcoal outline-none ring-0 placeholder:text-mid-gray focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary dark:placeholder:text-dark-text-muted"
+            className="search-input w-full rounded-2xl border border-border-subtle bg-light-cream px-12 py-3 text-sm text-charcoal outline-none ring-0 placeholder:text-mid-gray focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary dark:placeholder:text-dark-text-muted"
           />
           {search ? (
             <button
@@ -117,10 +117,10 @@ export function DirectoryFilters({
                 })
               }
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border px-4 py-[9px] text-[13px] font-medium',
+                'filter-chip inline-flex items-center gap-1.5 rounded-full border px-4 py-[9px] text-[13px] font-medium',
                 active
-                  ? 'border-calm-teal bg-calm-teal text-white dark:border-dark-cta-teal dark:bg-dark-cta-teal dark:text-[#14201F]'
-                  : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-white/10 dark:bg-white/4 dark:text-dark-text-primary dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
+                  ? 'filter-chip--active border-calm-teal bg-calm-teal text-[#0E1417] dark:border-dark-cta-teal dark:bg-dark-cta-teal dark:text-[#0E1417]'
+                  : 'border-border-subtle bg-light-cream text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-[#3A4A50] dark:bg-[#2A3540] dark:text-[#F2EBDD] dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
               )}
             >
               <span>{filter.icon}</span>
@@ -170,7 +170,7 @@ function SelectField({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full appearance-none rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 pr-10 text-sm font-medium text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
+        className="filter-dropdown w-full appearance-none rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 pr-10 text-sm font-medium text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
       >
         {children}
       </select>

@@ -32,7 +32,7 @@ export function DirectoryHeader({ venueCount }: DirectoryHeaderProps) {
           <div className="flex flex-wrap items-center gap-2 lg:justify-end">
             <Link
               href="/about"
-              className="inline-flex items-center gap-1.5 rounded-[10px] border border-transparent bg-transparent px-[18px] py-[9px] text-[13px] font-semibold text-charcoal hover:bg-[rgba(91,184,183,0.10)] hover:text-calm-teal dark:text-dark-text-primary dark:hover:bg-[rgba(111,207,206,0.12)] dark:hover:text-dark-cta-teal"
+              className="theme-toggle-pill inline-flex items-center gap-1.5 rounded-[10px] border border-transparent bg-transparent px-[18px] py-[9px] text-[13px] font-semibold text-charcoal hover:bg-[rgba(91,184,183,0.10)] hover:text-calm-teal dark:border-[#3A4A50] dark:bg-transparent dark:text-[#F2EBDD] dark:hover:bg-[rgba(111,207,206,0.12)] dark:hover:text-dark-cta-teal"
             >
               About
             </Link>

@@ -112,6 +112,149 @@
   }
 }
 
+@layer components {
+  .theme-toggle-pill {
+    background: white;
+    color: #1A2024;
+    border-color: var(--border-subtle);
+  }
+
+  .theme-toggle-pill--active {
+    background: var(--dark-cta-teal);
+    color: #0E1417;
+    border-color: var(--dark-cta-teal);
+  }
+
+  .venue-card {
+    background: var(--cream);
+    color: #1A2024;
+  }
+
+  .search-container {
+    background: var(--cream);
+  }
+
+  .search-input,
+  .filter-dropdown {
+    background: var(--cream);
+    color: #1A2024;
+  }
+
+  .search-input::placeholder {
+    color: var(--mid-gray);
+  }
+
+  .filter-chip {
+    background: #FBF4E0;
+    color: #1A2024;
+  }
+
+  .detail-section {
+    background: var(--cream);
+    color: #1A2024;
+  }
+
+  .detail-subcard {
+    background: var(--light-cream);
+    color: #1A2024;
+  }
+
+  .dark .theme-toggle-pill,
+  [data-theme='dark'] .theme-toggle-pill {
+    background: transparent;
+    color: #F2EBDD;
+    border-color: #3A4A50;
+  }
+
+  .dark .theme-toggle-pill--active,
+  [data-theme='dark'] .theme-toggle-pill--active {
+    background: #6FCFCE;
+    color: #0E1417;
+    border-color: #6FCFCE;
+  }
+
+  .dark .venue-card,
+  [data-theme='dark'] .venue-card {
+    background: #232C36;
+    color: #F2EBDD;
+    border-color: var(--dark-border);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .search-container,
+  [data-theme='dark'] .search-container {
+    background: #1F2A2F;
+    border-color: var(--dark-border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  }
+
+  .dark .search-input,
+  .dark .filter-dropdown,
+  [data-theme='dark'] .search-input,
+  [data-theme='dark'] .filter-dropdown {
+    background: #1F2A2F;
+    color: #F2EBDD;
+    border-color: #3A4A50;
+  }
+
+  .dark .search-input::placeholder,
+  [data-theme='dark'] .search-input::placeholder {
+    color: #9AA8A6;
+  }
+
+  .dark .filter-chip,
+  [data-theme='dark'] .filter-chip {
+    background: #2A3540;
+    color: #F2EBDD;
+    border-color: #3A4A50;
+  }
+
+  .dark .filter-chip--active,
+  [data-theme='dark'] .filter-chip--active {
+    background: #6FCFCE;
+    color: #0E1417;
+    border-color: #6FCFCE;
+  }
+
+  .dark .detail-section,
+  [data-theme='dark'] .detail-section {
+    background: #232C36;
+    color: #F2EBDD;
+    border-color: var(--dark-border);
+  }
+
+  .dark .detail-subcard,
+  [data-theme='dark'] .detail-subcard {
+    background: #1F2A2F;
+    color: #F2EBDD;
+    border-color: var(--dark-border);
+  }
+
+  .dark .theme-toggle-pill:hover,
+  .dark .search-input:focus,
+  .dark .filter-dropdown:focus,
+  .dark .filter-chip:hover,
+  [data-theme='dark'] .theme-toggle-pill:hover,
+  [data-theme='dark'] .search-input:focus,
+  [data-theme='dark'] .filter-dropdown:focus,
+  [data-theme='dark'] .filter-chip:hover {
+    border-color: #6FCFCE;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html.dark .theme-toggle-pill,
+    html.dark .venue-card,
+    html.dark .search-container,
+    html.dark .search-input,
+    html.dark .filter-dropdown,
+    html.dark .filter-chip,
+    html.dark .detail-section,
+    html.dark .detail-subcard {
+      color-scheme: dark;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

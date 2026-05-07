@@ -1,6 +1,6 @@
 'use client';
 
-import { Headphones, MoonStar, SunMedium, Users } from 'lucide-react';
+import { MoonStar, SunMedium, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getDisplaySensoryValue, getSensoryLevelLabel } from '@/lib/sensory-utils';
 
@@ -58,14 +58,14 @@ interface SensoryPillProps {
 }
 
 const pillConfig = {
-  quiet_room: { icon: MoonStar, emoji: '🤫', label: 'Quiet room' },
-  headphones: { icon: Headphones, emoji: '🎧', label: 'Headphones' },
-  staff_trained: { icon: Users, emoji: '👋', label: 'Staff trained' },
-  certified: { icon: SunMedium, emoji: '✓', label: 'Certified' },
+  quiet_room: { emoji: '🤫', label: 'Quiet room' },
+  headphones: { emoji: '🎧', label: 'Headphones' },
+  staff_trained: { emoji: '👋', label: 'Staff trained' },
+  certified: { emoji: '✓', label: 'Certified' },
 } as const;
 
 export function SensoryPill({ type, available, className }: SensoryPillProps) {
-  const { icon: Icon, emoji, label } = pillConfig[type];
+  const { emoji, label } = pillConfig[type];
   const active = type === 'certified' ? true : available === true;
 
   return (
@@ -78,7 +78,6 @@ export function SensoryPill({ type, available, className }: SensoryPillProps) {
         className
       )}
     >
-      <Icon className="h-3.5 w-3.5" />
       <span>{emoji}</span>
       <span>{label}</span>
     </div>
