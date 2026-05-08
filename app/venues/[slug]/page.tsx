@@ -93,7 +93,7 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.05fr_1.35fr]">
-          <section className="rounded-[32px] border border-border-subtle bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
+          <section className="rounded-[32px] border border-border-subtle bg-cream p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
             <div className="flex h-[320px] items-center justify-center rounded-[28px] bg-[linear-gradient(135deg,rgba(184,221,232,0.35),rgba(168,216,168,0.22),rgba(255,252,247,1))] text-center dark:bg-[linear-gradient(135deg,rgba(91,184,183,0.16),rgba(26,31,35,0.92))]">
               <div className="max-w-xs">
                 <p className="text-sm font-semibold uppercase tracking-[0.18em] text-mid-gray dark:text-dark-text-soft">
@@ -106,7 +106,7 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
             </div>
           </section>
 
-          <section className="rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+          <section className="rounded-[32px] border border-border-subtle bg-cream p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={cn(
@@ -172,7 +172,7 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <section className="detail-section rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+          <section className="detail-section rounded-[32px] border border-border-subtle bg-cream p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
             <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">AI sensory summary</h2>
             <p className="mt-4 text-base leading-8 text-charcoal dark:text-dark-text-primary">
               {venue.sens_accessibility_summary ||
@@ -181,7 +181,7 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
             </p>
           </section>
 
-          <section className="detail-section rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+          <section className="detail-section rounded-[32px] border border-border-subtle bg-cream p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
             <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">Sensory-Friendly Certified™</h2>
             <p className="mt-3 text-sm leading-7 text-mid-gray dark:text-dark-text-muted">
               Are you the venue owner? Learn how certification can make your space easier to trust and easier to find.
@@ -217,7 +217,7 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
           />
         </section>
 
-        <section className="mt-6 rounded-[32px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+        <section className="mt-6 rounded-[32px] border border-border-subtle bg-cream p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
           <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">Sensory accommodations</h2>
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <SensoryPill type="quiet_room" available={venue.sens_quiet_room} />
@@ -284,7 +284,7 @@ function SensoryCard({
   const percent = (display / 5) * 100;
 
   return (
-    <article className="detail-section rounded-[28px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+    <article className="detail-section rounded-[28px] border border-border-subtle bg-cream p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-charcoal dark:text-dark-text-heading">
           <span className="mr-2">{emoji}</span>

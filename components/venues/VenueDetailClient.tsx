@@ -74,7 +74,7 @@ export function VenueDetailClient({
 
   return (
     <>
-      <div className="detail-section rounded-[28px] border border-border-subtle bg-white p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
+      <div className="detail-section rounded-[28px] border border-border-subtle bg-cream p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
         <p className="text-sm font-semibold uppercase tracking-[0.14em] text-mid-gray dark:text-dark-text-muted">
           Was this helpful?
         </p>
@@ -98,7 +98,7 @@ export function VenueDetailClient({
         </div>
       </div>
 
-      <section className="detail-section rounded-[28px] border border-border-subtle bg-white p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
+      <section className="detail-section rounded-[28px] border border-border-subtle bg-cream p-6 shadow-card dark:border-dark-border dark:bg-dark-card">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-charcoal dark:text-dark-text-heading">Community notes</h2>

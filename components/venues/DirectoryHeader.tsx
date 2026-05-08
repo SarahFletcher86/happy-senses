@@ -10,7 +10,7 @@ interface DirectoryHeaderProps {
 
 export function DirectoryHeader({ venueCount }: DirectoryHeaderProps) {
   return (
-    <header className="border-b border-border-subtle bg-mint dark:border-dark-border dark:bg-dark-bg">
+    <header className="border-b border-border-subtle bg-cream dark:border-dark-border dark:bg-dark-bg">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 pb-6 pt-8 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex items-center gap-4">
           <HappySensesLogo size={56} className="rounded-2xl" />
