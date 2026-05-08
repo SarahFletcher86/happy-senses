@@ -1,8 +1,8 @@
 'use client';
 
-import { Search, Filter, X } from 'lucide-react';
+import { Filter, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { VenueFilters, SortOption } from '@/lib/types';
+import type { SortOption, VenueFilters } from '@/lib/types';
 
 interface DirectoryFiltersProps {
   search: string;
@@ -21,6 +21,16 @@ interface DirectoryFiltersProps {
   className?: string;
 }
 
+const quickFilters = [
+  { key: 'sensory_friendly' as const, label: 'Sensory supports', icon: '✨' },
+  { key: 'quiet_room' as const, label: 'Quiet room', icon: '🤫' },
+  { key: 'headphones' as const, label: 'Headphones', icon: '🎧' },
+  { key: 'staff_trained' as const, label: 'Staff trained', icon: '👋' },
+  { key: 'accessible' as const, label: 'Accessible', icon: '♿' },
+  { key: 'fenced' as const, label: 'Fenced', icon: '🚧' },
+  { key: 'not_near_water' as const, label: 'Away from water', icon: '🌊' },
+];
+
 export function DirectoryFilters({
   search,
   setSearch,
@@ -37,155 +47,134 @@ export function DirectoryFilters({
   venueCount,
   className,
 }: DirectoryFiltersProps) {
-  const quickFilters = [
-    { key: 'sensory_friendly' as const, label: 'Sensory Friendly', icon: '✨' },
-    { key: 'quiet_room' as const, label: 'Quiet Room', icon: '🔇' },
-    { key: 'headphones' as const, label: 'Headphones', icon: '🎧' },
-    { key: 'staff_trained' as const, label: 'Staff Trained', icon: '👥' },
-    { key: 'accessible' as const, label: 'Accessible', icon: '♿' },
-    { key: 'fenced' as const, label: 'Fenced', icon: '🚧' },
-    { key: 'not_near_water' as const, label: 'Not Near Water', icon: '💧' },
-  ];
-
-  const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'sensory_score', label: 'Best Sensory Score' },
-    { value: 'most_upvoted', label: 'Most Upvoted' },
-    { value: 'recently_verified', label: 'Recently Verified' },
-    { value: 'closest_match', label: 'Closest Match' },
-  ];
-
-  const activeQuickFiltersCount = quickFilters.filter(f => filters[f.key] === true).length;
+  const activeFilterCount = quickFilters.filter((filter) => filters[filter.key] === true).length;
 
   return (
-    <div className={cn('space-y-4', className)}>
-      {/* Search Input */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search venues..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        {search && (
-          <button
-            onClick={() => setSearch('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-gray-100"
-          >
-            <X className="w-4 h-4 text-gray-400" />
-          </button>
-        )}
-      </div>
-
-      {/* Main Filters Row */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Category Select */}
-        <div className="relative">
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="appearance-none pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            <option value="All">All Categories</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-        </div>
-
-        {/* City Select */}
-        <div className="relative">
-          <select
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            className="appearance-none pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            <option value="All">All Cities</option>
-            {cities.map(city => (
-              <option key={city} value={city}>{city}</option>
-            ))}
-          </select>
-          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-        </div>
-
-        {/* Sort Select */}
-        <div className="relative">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortOption)}
-            className="appearance-none pl-4 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            {sortOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-        </div>
-
-        {/* Result Count */}
-        <span className="ml-auto text-sm text-gray-500">
-          {venueCount} venue{venueCount !== 1 ? 's' : ''}
-        </span>
-      </div>
-
-      {/* Active Filters */}
-      {activeQuickFiltersCount > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-500">Active filters:</span>
-          {quickFilters.map(f => {
-            if (filters[f.key] !== true) return null;
-            return (
-              <button
-                key={f.key}
-                onClick={() => setFilters({ ...filters, [f.key]: null })}
-                className="flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-sm hover:bg-blue-200 transition-colors"
-              >
-                <span>{f.icon}</span>
-                <span>{f.label}</span>
-                <X className="w-3 h-3" />
-              </button>
-            );
-          })}
-          <button
-            onClick={() => setFilters({
-              sensory_friendly: null,
-              quiet_room: null,
-              headphones: null,
-              staff_trained: null,
-              accessible: null,
-              fenced: null,
-              not_near_water: null,
-            })}
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            Clear all
-          </button>
-        </div>
+    <section
+      className={cn(
+        'search-container rounded-2xl border border-border-subtle bg-cream p-5 shadow-[0_2px_10px_rgba(44,51,56,0.03)] dark:border-dark-border dark:bg-dark-card',
+        className
       )}
+    >
+      <div className="grid gap-4 lg:grid-cols-[1.8fr_1fr_1fr_1fr]">
+        <label className="relative block">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-mid-gray dark:text-dark-text-soft" />
+          <input
+            type="text"
+            placeholder="Search by name, city, address, or vibe"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="search-input w-full rounded-2xl border border-border-subtle bg-light-cream px-12 py-3 text-sm text-charcoal outline-none ring-0 placeholder:text-mid-gray focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary dark:placeholder:text-dark-text-muted"
+          />
+          {search ? (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-mid-gray hover:text-charcoal dark:text-dark-text-muted dark:hover:text-dark-text-primary"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          ) : null}
+        </label>
 
-      {/* Quick Filter Toggles */}
-      <div className="flex flex-wrap gap-2">
-        {quickFilters.map(f => (
-          <button
-            key={f.key}
-            onClick={() => setFilters({
-              ...filters,
-              [f.key]: filters[f.key] === true ? null : true,
-            })}
-            className={cn(
-              'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors border',
-              filters[f.key] === true
-                ? 'bg-blue-100 text-blue-700 border-blue-200'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
-            )}
-          >
-            <span>{f.icon}</span>
-            <span>{f.label}</span>
-          </button>
-        ))}
+        <SelectField value={category} onChange={setCategory}>
+          <option value="All">All categories</option>
+          {categories.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </SelectField>
+
+        <SelectField value={city} onChange={setCity}>
+          <option value="All">All cities</option>
+          {cities.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </SelectField>
+
+        <SelectField value={sortBy} onChange={(value) => setSortBy(value as SortOption)}>
+          <option value="sensory_score">Most sensory-friendly</option>
+          <option value="most_upvoted">Most helpful votes</option>
+          <option value="recently_verified">Recently verified</option>
+          <option value="closest_match">Closest match</option>
+        </SelectField>
       </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {quickFilters.map((filter) => {
+          const active = filters[filter.key] === true;
+          return (
+            <button
+              key={filter.key}
+              type="button"
+              onClick={() =>
+                setFilters({
+                  ...filters,
+                  [filter.key]: active ? null : true,
+                })
+              }
+              className={cn(
+                'filter-chip inline-flex items-center gap-1.5 rounded-full border px-4 py-[9px] text-[13px] font-medium',
+                active
+                  ? 'filter-chip--active border-calm-teal bg-calm-teal text-[#0E1417] dark:border-dark-cta-teal dark:bg-dark-cta-teal dark:text-[#0E1417]'
+                  : 'border-[rgba(91,184,183,0.18)] bg-[rgba(91,184,183,0.08)] text-[#2F7372] hover:border-calm-teal hover:bg-[rgba(91,184,183,0.14)] hover:text-calm-teal dark:border-[rgba(91,184,183,0.22)] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#A3DEDD] dark:hover:border-dark-cta-teal dark:hover:bg-[rgba(91,184,183,0.16)] dark:hover:text-dark-cta-teal'
+              )}
+            >
+              <span>{filter.icon}</span>
+              {filter.label}
+            </button>
+          );
+        })}
+        <div className="ml-auto flex items-center gap-3 text-[13px] text-mid-gray dark:text-dark-text-dim">
+          <span>{venueCount} results</span>
+          {activeFilterCount > 0 ? (
+            <button
+              type="button"
+              onClick={() =>
+                setFilters({
+                  sensory_friendly: null,
+                  quiet_room: null,
+                  headphones: null,
+                  staff_trained: null,
+                  accessible: null,
+                  fenced: null,
+                  not_near_water: null,
+                })
+              }
+              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-charcoal hover:text-calm-teal dark:text-dark-text-primary dark:hover:text-dark-cta-teal"
+            >
+              <Filter className="h-4 w-4" />
+              Clear {activeFilterCount}
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SelectField({
+  value,
+  onChange,
+  children,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="filter-dropdown w-full appearance-none rounded-2xl border border-border-subtle bg-light-cream px-4 py-3 pr-10 text-sm font-medium text-charcoal outline-none focus:border-calm-teal dark:border-dark-border dark:bg-dark-bg dark:text-dark-text-primary"
+      >
+        {children}
+      </select>
+      <Filter className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-mid-gray dark:text-dark-text-muted" />
     </div>
   );
 }

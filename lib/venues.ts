@@ -1,22 +1,26 @@
-/**
- * Happy Senses - Venue Data Loader
- * Server-side CSV parsing and venue data management
- */
-
 import Papa from 'papaparse';
-import 'server-only';
-import type { Venue, EquipmentHeight, SensoryCertification } from './types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { z } from 'zod';
-
-const VENUES_CSV_URL =
-  process.env.VENUES_CSV_URL ||
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZRmCwJEGzut93nuw3XA9cbBN6WXXvPYQ9fENg1n5GWvDHdSZ9gzWhr1Dy6Yb3I34MEsQzTAHsG_Ye/pub?output=csv';
-
-// Cache for loaded venues (avoids re-parsing on every request)
-let venuesCache: Venue[] | null = null;
-let venuesPromise: Promise<Venue[]> | null = null;
+import {
+  fetchApprovedNotes,
+  isAirtableConfigured,
+} from './airtable';
+import {
+  getCrowdDescription,
+  getDisplaySensoryValue,
+  getLightDescription,
+  getNoiseDescription,
+  getSensoryLevelLabel,
+} from './sensory-utils';
+import type {
+  EquipmentHeight,
+  SensoryCertification,
+  Venue,
+  VenueDataState,
+  VenueNote,
+  VenueTier,
+} from './types';
 
 const sensoryCertificationValues = [
   'autism-friendly',
@@ -27,331 +31,455 @@ const sensoryCertificationValues = [
 ] as const;
 
 const equipmentHeightValues = ['toddler', 'low', 'medium', 'high', 'various'] as const;
+const AIRTABLE_API = 'https://api.airtable.com/v0';
 
-const toStr = (value: unknown): string => {
+const venueSchema = z.object({
+  recordId: z.string().optional(),
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  category: z.string(),
+  description: z.string(),
+  city: z.string(),
+  address: z.string(),
+  lat: z.number().nullable(),
+  lng: z.number().nullable(),
+  website: z.string(),
+  phone: z.string(),
+  email: z.string(),
+  image_url: z.string(),
+  sens_noise_1to5: z.number().min(1).max(5).nullable(),
+  sens_light_1to5: z.number().min(1).max(5).nullable(),
+  sens_crowd_1to5: z.number().min(1).max(5).nullable(),
+  sens_quiet_room: z.boolean().nullable(),
+  sens_headphones: z.boolean().nullable(),
+  sens_staff_trained: z.boolean().nullable(),
+  sens_certification: z.enum(sensoryCertificationValues).optional(),
+  sens_last_verified: z.string().nullable(),
+  sens_score_avg: z.number().nullable(),
+  sens_accessibility_summary: z.string().nullable(),
+  ai_accessibility_summary: z.string().nullable(),
+  sensory_signals: z.array(z.string()),
+  accessible: z.boolean().nullable(),
+  fenced: z.boolean().nullable(),
+  near_water: z.boolean().nullable(),
+  equipment_height: z.enum(equipmentHeightValues).optional(),
+  community_upvotes: z.number().int().nonnegative(),
+  community_downvotes: z.number().int().nonnegative(),
+  community_notes_count: z.number().int().nonnegative(),
+  tier: z.string(),
+  confidence_score: z.number().nullable(),
+  source: z.string(),
+  published: z.boolean(),
+  google_place_id: z.string(),
+  google_rating: z.number().nullable(),
+  google_review_count: z.number().nullable(),
+  google_top_reviews: z.array(z.string()),
+});
+
+function toStr(value: unknown): string {
   const str = String(value ?? '').trim();
-  if (!str || str === 'NaN' || str === 'undefined') return '';
+  if (!str || str === 'undefined' || str === 'null' || str === 'NaN') {
+    return '';
+  }
   return str;
-};
+}
 
-const toBool = (value: unknown): boolean | null => {
-  const str = String(value ?? '').trim().toLowerCase();
-  if (!str || str === 'nan' || str === 'undefined') return null;
-  return str === 'true' || str === '1' || str === 'yes' || str === 'y' || str === '✅';
-};
+function toLongText(value: unknown): string {
+  if (typeof value === 'string') {
+    return toStr(value);
+  }
 
-const toNum = (value: unknown): number | null => {
-  const str = String(value ?? '').trim();
-  if (!str || str === 'NaN' || str === 'undefined') return null;
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => toLongText(item))
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+  }
+
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+
+    for (const key of ['value', 'text', 'content', 'plain_text']) {
+      const nested = toLongText(record[key]);
+      if (nested) return nested;
+    }
+
+    return Object.values(record)
+      .map((item) => toLongText(item))
+      .filter(Boolean)
+      .join(' ')
+      .trim();
+  }
+
+  return toStr(value);
+}
+
+function toNum(value: unknown): number | null {
+  const str = toStr(value);
+  if (!str) return null;
   const num = Number(str);
   return Number.isFinite(num) ? num : null;
-};
+}
 
-const toNumDefault = (fallback: number) => (value: unknown) => {
-  const num = toNum(value);
-  return num === null ? fallback : num;
-};
+function toBool(value: unknown): boolean | null {
+  if (typeof value === 'boolean') return value;
+  const str = toStr(value).toLowerCase();
+  if (!str) return null;
+  if (['true', '1', 'yes', 'y', 'checked', 'available'].includes(str)) return true;
+  if (['false', '0', 'no', 'n'].includes(str)) return false;
+  return null;
+}
 
-const toCertification = (value: unknown): SensoryCertification | undefined => {
+function toStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => toStr(item)).filter(Boolean);
+  }
+
+  const str = toStr(value);
+  if (!str) return [];
+  return str
+    .split(/[|,]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function toCertification(value: unknown): SensoryCertification {
   const lower = toStr(value).toLowerCase();
-  if (!lower) return undefined;
-  if (sensoryCertificationValues.includes(lower as SensoryCertification)) {
+  if ((sensoryCertificationValues as readonly string[]).includes(lower)) {
     return lower as SensoryCertification;
   }
   return undefined;
-};
+}
 
-const toEquipmentHeight = (value: unknown): EquipmentHeight => {
+function toEquipmentHeight(value: unknown): EquipmentHeight {
   const lower = toStr(value).toLowerCase();
-  if (!lower) return undefined;
-  if (equipmentHeightValues.includes(lower as EquipmentHeight)) {
+  if ((equipmentHeightValues as readonly string[]).includes(lower)) {
     return lower as EquipmentHeight;
   }
   return undefined;
-};
-
-const toCategory = (value: unknown): string => normalizeCategory(toStr(value));
-
-const VenueSchema = z.object({
-  name: z.string().min(1),
-  slug: z.string().min(1),
-  category: z.preprocess(toCategory, z.string()),
-  description: z.preprocess(toStr, z.string()),
-  city: z.preprocess(toStr, z.string()),
-  address: z.preprocess(toStr, z.string()),
-  website: z.preprocess(toStr, z.string()),
-  phone: z.preprocess(toStr, z.string()),
-  email: z.preprocess(toStr, z.string()),
-  image_url: z.preprocess(toStr, z.string()),
-  lat: z.preprocess(toNum, z.number().nullable()),
-  lng: z.preprocess(toNum, z.number().nullable()),
-  sens_noise_1to5: z.preprocess(toNum, z.number().min(1).max(5).nullable()),
-  sens_light_1to5: z.preprocess(toNum, z.number().min(1).max(5).nullable()),
-  sens_crowd_1to5: z.preprocess(toNum, z.number().min(1).max(5).nullable()),
-  sens_quiet_room: z.preprocess(toBool, z.boolean().nullable()),
-  sens_headphones: z.preprocess(toBool, z.boolean().nullable()),
-  sens_staff_trained: z.preprocess(toBool, z.boolean().nullable()),
-  sens_certification: z.preprocess(toCertification, z.enum(sensoryCertificationValues).optional()),
-  sens_last_verified: z.preprocess(toStr, z.string().nullable()),
-  sens_score_avg: z.preprocess(toNum, z.number().min(0).max(100).nullable()),
-  ai_accessibility_summary: z.preprocess(toStr, z.string().nullable()),
-  accessible: z.preprocess(toBool, z.boolean().nullable()),
-  fenced: z.preprocess(toBool, z.boolean().nullable()),
-  near_water: z.preprocess(toBool, z.boolean().nullable()),
-  equipment_height: z.preprocess(toEquipmentHeight, z.enum(equipmentHeightValues).optional()),
-  upvotes: z.preprocess(toNumDefault(0), z.number().min(0)),
-  downvotes: z.preprocess(toNumDefault(0), z.number().min(0)),
-  notes_count: z.preprocess(toNumDefault(0), z.number().min(0)),
-});
-
-/**
- * Normalize category names (handle variations)
- */
-function normalizeCategory(category: string): string {
-  const normalized = category.toLowerCase().trim();
-  
-  // Map common variations to standard names
-  const categoryMap: Record<string, string> = {
-    'community centre': 'Community Centre',
-    'community center': 'Community Centre',
-    'park': 'Park',
-    'parks': 'Park',
-    'museum': 'Museum',
-    'library': 'Library',
-    'cafe': 'Café',
-    'restaurant': 'Restaurant',
-    'playground': 'Playground',
-    'indoor playground': 'Indoor Playground',
-    'nature reserve': 'Nature Reserve',
-    'trail': 'Trail',
-    'beach': 'Beach',
-    'pool': 'Pool',
-    'recreation centre': 'Recreation Centre',
-    'school': 'School',
-    'church': 'Church',
-  };
-  
-  return categoryMap[normalized] || category;
 }
 
-/**
- * Compute the overall sensory score for a venue (0-100)
- * Lower sensory burden = higher score
- */
-export function computeOverallScore(venue: Partial<Venue>): number {
-  // Base score from sensory scales (lower is better, so invert)
-  const noise = venue.sens_noise_1to5 ?? 3;
-  const light = venue.sens_light_1to5 ?? 3;
-  const crowd = venue.sens_crowd_1to5 ?? 3;
-  
-  // Average of 1-5 scales, inverted to 0-4, then scaled to 0-60
-  const sensoryAvg = (noise + light + crowd) / 3;
-  const baseScore = ((5 - sensoryAvg) / 4) * 60;
-  
-  // Bonuses
-  let bonus = 0;
-  if (venue.sens_quiet_room === true) bonus += 10;
-  if (venue.sens_headphones === true) bonus += 8;
-  if (venue.sens_staff_trained === true) bonus += 12;
-  if (venue.sens_certification) bonus += 10;
-  
-  // Penalties
-  let penalty = 0;
-  const nearWater = venue.near_water ?? null;
-  const fenced = venue.fenced ?? null;
-  if (nearWater === true && fenced !== true) penalty -= 10;
-  if (nearWater === true && fenced === true) penalty -= 3;
-  
-  // Final score bounded 0-100
-  const score = Math.round(baseScore + bonus + penalty);
-  return Math.max(0, Math.min(100, score));
-}
-
-async function loadCsvContent(): Promise<string> {
-  try {
-    const response = await fetch(VENUES_CSV_URL, {
-      next: { revalidate: 3600 },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch venues CSV: ${response.status}`);
+function getField(fields: Record<string, unknown>, keys: string[]): unknown {
+  for (const key of keys) {
+    if (key in fields && fields[key] !== undefined && fields[key] !== null && fields[key] !== '') {
+      return fields[key];
     }
-
-    return await response.text();
-  } catch (error) {
-    console.warn('[venues] Failed to fetch remote CSV, falling back to local file.', error);
-    const csvPath = join(process.cwd(), 'data', 'venues.csv');
-    return readFileSync(csvPath, 'utf-8');
   }
+  return undefined;
 }
 
-function parseCsvVenues(csvText: string): {
-  venues: Venue[];
-  totalRows: number;
-  validRows: number;
-} {
-  const parsed = Papa.parse<Record<string, unknown>>(csvText, {
+function normalizeTier(value: unknown): VenueTier {
+  const tier = toStr(value);
+  if (!tier) return 'Help us verify';
+
+  const lower = tier.toLowerCase();
+  if (lower.includes('trusted') || lower.includes('verified')) return '✓ Trusted';
+  if (lower.includes('promising') || lower.includes('likely')) return 'Promising';
+  return 'Help us verify';
+}
+
+export function computeOverallScore(venue: Partial<Venue>): number {
+  const values = [
+    getDisplaySensoryValue(venue.sens_noise_1to5 ?? null),
+    getDisplaySensoryValue(venue.sens_light_1to5 ?? null),
+    getDisplaySensoryValue(venue.sens_crowd_1to5 ?? null),
+  ].filter((value): value is number => value !== null);
+
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const sensoryScore = values.reduce((sum, value) => sum + value, 0) / values.length;
+  let bonus = 0;
+  if (venue.sens_quiet_room) bonus += 0.4;
+  if (venue.sens_headphones) bonus += 0.25;
+  if (venue.sens_staff_trained) bonus += 0.35;
+  if (venue.sens_certification) bonus += 0.3;
+
+  return Math.max(0, Math.min(100, Math.round(((sensoryScore + bonus) / 5.9) * 100)));
+}
+
+function normalizeVenue(input: Record<string, unknown> & { recordId?: string }): Venue {
+  const parsed = venueSchema.parse({
+    recordId: input.recordId,
+    name: toStr(getField(input, ['name'])),
+    slug: toStr(getField(input, ['slug'])),
+    category: toStr(getField(input, ['category'])) || 'Community Space',
+    description: toStr(getField(input, ['description'])),
+    city: toStr(getField(input, ['city'])),
+    address: toStr(getField(input, ['address'])),
+    lat: toNum(getField(input, ['lat'])),
+    lng: toNum(getField(input, ['lng'])),
+    website: toStr(getField(input, ['website'])),
+    phone: toStr(getField(input, ['phone'])),
+    email: toStr(getField(input, ['email'])),
+    image_url: toStr(getField(input, ['image_url', 'image'])),
+    sens_noise_1to5: toNum(getField(input, ['sens_noise_1to5'])),
+    sens_light_1to5: toNum(getField(input, ['sens_light_1to5'])),
+    sens_crowd_1to5: toNum(getField(input, ['sens_crowd_1to5'])),
+    sens_quiet_room: toBool(getField(input, ['sens_quiet_room'])),
+    sens_headphones: toBool(getField(input, ['sens_headphones'])),
+    sens_staff_trained: toBool(getField(input, ['sens_staff_trained'])),
+    sens_certification: toCertification(getField(input, ['sens_certification'])),
+    sens_last_verified: toStr(getField(input, ['sens_last_verified'])) || null,
+    sens_score_avg: toNum(getField(input, ['sens_score_avg'])),
+    sens_accessibility_summary:
+      toLongText(
+        getField(input, [
+          'sens_accessibility_summary',
+          'ai_accessibility_summary',
+          'AI Sensory Accessibility Summary',
+        ])
+      ) || null,
+    ai_accessibility_summary:
+      toLongText(
+        getField(input, [
+          'ai_accessibility_summary',
+          'sens_accessibility_summary',
+          'AI Sensory Accessibility Summary',
+        ])
+      ) || null,
+    sensory_signals: toStringArray(getField(input, ['sensory_signals'])),
+    accessible: toBool(getField(input, ['accessible'])),
+    fenced: toBool(getField(input, ['fenced'])),
+    near_water: toBool(getField(input, ['near_water'])),
+    equipment_height: toEquipmentHeight(getField(input, ['equipment_height'])),
+    community_upvotes: toNum(getField(input, ['community_upvotes', 'upvotes'])) ?? 0,
+    community_downvotes: toNum(getField(input, ['community_downvotes', 'downvotes'])) ?? 0,
+    community_notes_count: toNum(getField(input, ['community_notes_count', 'notes_count'])) ?? 0,
+    tier: normalizeTier(getField(input, ['tier'])),
+    confidence_score: toNum(getField(input, ['confidence_score'])),
+    source: toStr(getField(input, ['source'])) || 'Airtable',
+    published: toBool(getField(input, ['published'])) ?? true,
+    google_place_id: toStr(getField(input, ['google_place_id'])),
+    google_rating: toNum(getField(input, ['google_rating'])),
+    google_review_count: toNum(getField(input, ['google_review_count'])),
+    google_top_reviews: toStringArray(getField(input, ['google_top_reviews'])),
+  });
+
+  return {
+    recordId: parsed.recordId,
+    name: parsed.name,
+    slug: parsed.slug,
+    category: parsed.category,
+    description: parsed.description,
+    city: parsed.city,
+    address: parsed.address,
+    lat: parsed.lat,
+    lng: parsed.lng,
+    website: parsed.website,
+    phone: parsed.phone,
+    email: parsed.email,
+    image_url: parsed.image_url,
+    sens_noise_1to5: parsed.sens_noise_1to5,
+    sens_light_1to5: parsed.sens_light_1to5,
+    sens_crowd_1to5: parsed.sens_crowd_1to5,
+    sens_quiet_room: parsed.sens_quiet_room,
+    sens_headphones: parsed.sens_headphones,
+    sens_staff_trained: parsed.sens_staff_trained,
+    sens_certification: parsed.sens_certification,
+    sens_last_verified: parsed.sens_last_verified,
+    sens_score_avg: parsed.sens_score_avg ?? computeOverallScore(parsed),
+    sens_accessibility_summary: parsed.sens_accessibility_summary,
+    ai_accessibility_summary: parsed.ai_accessibility_summary,
+    sensory_signals: parsed.sensory_signals,
+    accessible: parsed.accessible,
+    fenced: parsed.fenced,
+    near_water: parsed.near_water,
+    equipment_height: parsed.equipment_height,
+    community_upvotes: parsed.community_upvotes,
+    community_downvotes: parsed.community_downvotes,
+    community_notes_count: parsed.community_notes_count,
+    tier: parsed.tier,
+    confidence_score: parsed.confidence_score,
+    source: parsed.source,
+    published: parsed.published,
+    google_place_id: parsed.google_place_id,
+    google_rating: parsed.google_rating,
+    google_review_count: parsed.google_review_count,
+    google_top_reviews: parsed.google_top_reviews,
+  };
+}
+
+function parseCsvVenues(): Venue[] {
+  const csvPath = join(process.cwd(), 'data', 'venues.cleaned.csv');
+  const csv = readFileSync(csvPath, 'utf-8');
+  const parsed = Papa.parse(csv, {
     header: true,
     skipEmptyLines: true,
   });
 
-  const rows = Array.isArray(parsed.data) ? parsed.data : [];
-  const venues: Venue[] = [];
+  return (parsed.data as Record<string, unknown>[])
+    .map((row: Record<string, unknown>) =>
+      normalizeVenue({
+        ...row,
+        published: true,
+        source: 'CSV fallback',
+      })
+    )
+    .filter((venue: Venue) => venue.published);
+}
 
-  for (const row of rows) {
-    const normalizedRow = {
-      name: row.name,
-      slug: row.slug,
-      category: row.category,
-      description: row.description,
-      city: row.city,
-      address: row.address,
-      website: row.website,
-      phone: row.phone,
-      email: row.email,
-      image_url: row.image_url,
-      lat: row.lat,
-      lng: row.lng,
-      sens_noise_1to5: row.sens_noise_1to5,
-      sens_light_1to5: row.sens_light_1to5,
-      sens_crowd_1to5: row.sens_crowd_1to5,
-      sens_quiet_room: row.sens_quiet_room,
-      sens_headphones: row.sens_headphones,
-      sens_staff_trained: row.sens_staff_trained,
-      sens_certification: row.sens_certification,
-      sens_last_verified: row.sens_last_verified,
-      sens_score_avg: row.sens_score_avg,
-      ai_accessibility_summary:
-        row['AI Sensory Accessibility Summary'] ??
-        row.sens_accessibility_summary ??
-        row.ai_accessibility_summary,
-      accessible: row.accessible_playground ?? row.accessible,
-      fenced: row.fenced_in ?? row.fenced,
-      near_water: row.near_water,
-      equipment_height: row.equipment_height,
-      upvotes: row.upvotes ?? 0,
-      downvotes: row.downvotes ?? 0,
-      notes_count: row.notes_count ?? 0,
-    };
-
-    const result = VenueSchema.safeParse(normalizedRow);
-    if (result.success) {
-      const venue = result.data;
-      if (venue.sens_score_avg === null) {
-        venue.sens_score_avg = computeOverallScore(venue);
-      }
-      venues.push(venue);
-    }
-  }
-
+function getAirtableConfig() {
   return {
-    venues,
-    totalRows: rows.length,
-    validRows: venues.length,
+    baseId: process.env.AIRTABLE_BASE_ID!,
+    venuesTableId: process.env.AIRTABLE_VENUES_TABLE_ID!,
+    pat: process.env.AIRTABLE_PAT!,
   };
 }
 
-/**
- * Load all venues from the CSV file
- * Cached for performance
- */
+function quoteFormulaValue(value: string): string {
+  return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+}
+
+function buildAirtableHeaders(pat: string) {
+  return { Authorization: `Bearer ${pat}` };
+}
+
+type AirtableRecord = {
+  id: string;
+  fields: Record<string, unknown>;
+};
+
+function mapAirtableRecordToVenue(record: AirtableRecord): Venue {
+  return normalizeVenue({
+    ...record.fields,
+    recordId: record.id,
+    published: true,
+  });
+}
+
+async function loadVenuesFromAirtable(): Promise<Venue[]> {
+  const { baseId, venuesTableId, pat } = getAirtableConfig();
+  const all: Venue[] = [];
+  let offset: string | undefined;
+
+  do {
+    const url = new URL(`${AIRTABLE_API}/${baseId}/${venuesTableId}`);
+    url.searchParams.set('pageSize', '100');
+    url.searchParams.set('filterByFormula', '{published}=TRUE()');
+    url.searchParams.set('sort[0][field]', 'name');
+    url.searchParams.set('sort[0][direction]', 'asc');
+    if (offset) {
+      url.searchParams.set('offset', offset);
+    }
+
+    const res = await fetch(url.toString(), {
+      headers: buildAirtableHeaders(pat),
+      next: { revalidate: 300, tags: ['venues'] },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Airtable venues request failed with ${res.status}`);
+    }
+
+    const data = (await res.json()) as { records?: AirtableRecord[]; offset?: string };
+    all.push(...(data.records ?? []).map(mapAirtableRecordToVenue));
+    offset = data.offset;
+  } while (offset);
+
+  return all;
+}
+
+export async function loadVenueDataState(): Promise<VenueDataState> {
+  if (!isAirtableConfigured()) {
+    return {
+      venues: parseCsvVenues(),
+      source: 'csv-fallback',
+      warning: null,
+    };
+  }
+
+  try {
+    const venues = await loadVenuesFromAirtable();
+    return {
+      venues,
+      source: 'airtable',
+      warning: null,
+    };
+  } catch (error) {
+    console.warn('[venues] Airtable failed, falling back to CSV.', error);
+    return {
+      venues: parseCsvVenues(),
+      source: 'csv-fallback',
+      warning: 'Showing cached venues',
+    };
+  }
+}
+
 export async function loadVenues(): Promise<Venue[]> {
-  if (venuesCache) {
-    return venuesCache;
-  }
-
-  if (!venuesPromise) {
-    venuesPromise = (async () => {
-      try {
-        const csvContent = await loadCsvContent();
-        const { venues, totalRows, validRows } = parseCsvVenues(csvContent);
-        const skipped = Math.max(0, totalRows - validRows);
-        venuesCache = venues;
-        console.info(`[venues] Loaded ${validRows} venues. Skipped ${skipped} invalid rows.`);
-        return venuesCache;
-      } catch (error) {
-        console.error('Error loading venues CSV:', error);
-        venuesCache = [];
-        return venuesCache;
-      }
-    })();
-  }
-
-  return venuesPromise;
+  const { venues } = await loadVenueDataState();
+  return venues;
 }
 
-/**
- * Get a single venue by slug
- */
+export async function getAllVenues(): Promise<Venue[]> {
+  return loadVenues();
+}
+
 export async function getVenueBySlug(slug: string): Promise<Venue | null> {
+  if (isAirtableConfigured()) {
+    try {
+      const { baseId, venuesTableId, pat } = getAirtableConfig();
+      const url = new URL(`${AIRTABLE_API}/${baseId}/${venuesTableId}`);
+      url.searchParams.set(
+        'filterByFormula',
+        `AND({published}=TRUE(), {slug}=${quoteFormulaValue(slug)})`
+      );
+      url.searchParams.set('maxRecords', '1');
+
+      const res = await fetch(url.toString(), {
+        headers: buildAirtableHeaders(pat),
+        next: { revalidate: 300, tags: [`venue:${slug}`] },
+      });
+
+      if (res.ok) {
+        const data = (await res.json()) as { records?: AirtableRecord[] };
+        const record = data.records?.[0];
+        if (record) {
+          return mapAirtableRecordToVenue(record);
+        }
+        return null;
+      }
+    } catch (error) {
+      console.warn('[venues] Failed to load venue by slug from Airtable, using cached data.', error);
+    }
+  }
+
   const venues = await loadVenues();
-  return venues.find(v => v.slug === slug) || null;
+  return venues.find((venue) => venue.slug === slug) ?? null;
 }
 
-/**
- * Get all unique categories from venues
- */
 export async function getCategories(): Promise<string[]> {
   const venues = await loadVenues();
-  const categories = new Set(venues.map(v => v.category));
-  return Array.from(categories).sort();
+  return Array.from(new Set(venues.map((venue) => venue.category))).sort();
 }
 
-/**
- * Get all unique cities from venues
- */
 export async function getCities(): Promise<string[]> {
   const venues = await loadVenues();
-  const cities = new Set(venues.filter(v => v.city).map(v => v.city));
-  return Array.from(cities).sort();
+  return Array.from(new Set(venues.map((venue) => venue.city).filter(Boolean))).sort();
+}
+
+export async function getApprovedNotesBySlug(slug: string): Promise<VenueNote[]> {
+  const venue = await getVenueBySlug(slug);
+  if (!venue?.recordId || !isAirtableConfigured()) {
+    return [];
+  }
+
+  try {
+    return await fetchApprovedNotes(venue.recordId);
+  } catch (error) {
+    console.warn('[venues] Failed to load approved notes.', error);
+    return [];
+  }
 }
 
 export { filterVenues, sortVenues } from './venue-filters';
 
-/**
- * Get sensory level label for display
- */
-export function getSensoryLevelLabel(value: number | null): string {
-  if (value === null) return 'Unknown';
-  if (value <= 1) return 'Very Low';
-  if (value <= 2) return 'Low';
-  if (value === 3) return 'Moderate';
-  if (value <= 4) return 'High';
-  return 'Very High';
-}
-
-/**
- * Get sensory level description for noise
- */
-export function getNoiseDescription(value: number | null): string {
-  if (value === null) return 'Noise level unknown';
-  if (value <= 1) return 'Very quiet - minimal sound';
-  if (value <= 2) return 'Quiet - calm environment';
-  if (value === 3) return 'Moderate - typical noise levels';
-  if (value <= 4) return 'Busy - noticeable noise';
-  return 'Loud - high noise environment';
-}
-
-/**
- * Get sensory level description for light
- */
-export function getLightDescription(value: number | null): string {
-  if (value === null) return 'Lighting unknown';
-  if (value <= 1) return 'Dim lighting - low stimulation';
-  if (value <= 2) return 'Soft lighting - comfortable';
-  if (value === 3) return 'Moderate lighting - standard';
-  if (value <= 4) return 'Bright lighting - well-lit';
-  return 'Very bright - high illumination';
-}
-
-/**
- * Get sensory level description for crowd
- */
-export function getCrowdDescription(value: number | null): string {
-  if (value === null) return 'Crowd level unknown';
-  if (value <= 1) return 'Usually empty';
-  if (value <= 2) return 'Light crowds';
-  if (value === 3) return 'Moderate crowds';
-  if (value <= 4) return 'Often crowded';
-  return 'Very crowded - high traffic';
-}
+export {
+  getCrowdDescription,
+  getDisplaySensoryValue,
+  getLightDescription,
+  getNoiseDescription,
+  getSensoryLevelLabel,
+};

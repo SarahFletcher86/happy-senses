@@ -1,205 +1,161 @@
 'use client';
 
 import Link from 'next/link';
-import { MapPin, ExternalLink, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SensoryBadge, SensoryPill } from './SensoryBadge';
-import { SafetyBadge, WarningBadge } from './SafetyBadge';
+import { getDisplaySensoryValue } from '@/lib/sensory-utils';
+import { SafetyBadge } from './SafetyBadge';
+import { SensoryPill } from './SensoryBadge';
 import type { Venue } from '@/lib/types';
 
 interface VenueCardProps {
   venue: Venue;
-  onUpvote?: (slug: string) => void;
-  onDownvote?: (slug: string) => void;
   localVotes?: { upvotes: number; downvotes: number };
 }
 
-export function VenueCard({ venue, onUpvote, onDownvote, localVotes }: VenueCardProps) {
-  const score = venue.sens_score_avg ?? 0;
-  
-  // Get score color based on value
-  const getScoreColor = (score: number) => {
-    if (score >= 70) return 'bg-emerald-500';
-    if (score >= 50) return 'bg-yellow-500';
-    if (score >= 30) return 'bg-orange-500';
-    return 'bg-red-500';
-  };
+const categoryStyles: Record<string, string> = {
+  Library:
+    'bg-[rgba(184,221,232,0.60)] text-[#2B6478] dark:bg-[rgba(184,221,232,0.20)] dark:text-[#C4E2EE]',
+  Museum:
+    'bg-[rgba(244,168,146,0.40)] text-[#B25938] dark:bg-[rgba(244,168,146,0.20)] dark:text-[#F8C4B0]',
+  Park:
+    'bg-[rgba(168,216,168,0.40)] text-[#3F7A3F] dark:bg-[rgba(168,216,168,0.20)] dark:text-[#B5DCB5]',
+  'Community Centre':
+    'bg-[rgba(91,184,183,0.50)] text-[#155251] dark:bg-[rgba(91,184,183,0.28)] dark:text-[#8DD3D2]',
+  'Cafe / Restaurant':
+    'bg-[rgba(245,216,108,0.55)] text-[#6B5418] dark:bg-[rgba(245,216,108,0.22)] dark:text-[#F5D86C]',
+};
 
-  // Get score label
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Excellent';
-    if (score >= 70) return 'Very Good';
-    if (score >= 60) return 'Good';
-    if (score >= 50) return 'Fair';
-    if (score >= 30) return 'Challenging';
-    return 'High Sensory';
-  };
+const tierStyles: Record<string, string> = {
+  '✓ Trusted': 'bg-[rgba(168,216,168,0.45)] text-[#2B5C2B] dark:bg-[rgba(168,216,168,0.22)] dark:text-[#DDF2DD]',
+  Promising: 'bg-[rgba(245,216,108,0.65)] text-[#6B5418] dark:bg-[rgba(245,216,108,0.26)] dark:text-[#F8E1A5]',
+  'Help us verify':
+    'bg-[rgba(244,168,146,0.45)] text-[#8B3F22] dark:bg-[rgba(244,168,146,0.22)] dark:text-[#FCD8C8]',
+};
 
-  const upvotes = localVotes?.upvotes ?? venue.upvotes;
-  const downvotes = localVotes?.downvotes ?? venue.downvotes;
+export function VenueCard({ venue, localVotes }: VenueCardProps) {
+  const upvotes = localVotes?.upvotes ?? venue.community_upvotes;
+  const downvotes = localVotes?.downvotes ?? venue.community_downvotes;
+  const totalCommunityVotes = upvotes + downvotes;
+  const tierLabel = venue.tier || 'Help us verify';
+  const activeAmenities = [
+    venue.sens_quiet_room ? <SensoryPill key="quiet-room" type="quiet_room" available={venue.sens_quiet_room} /> : null,
+    venue.sens_headphones ? <SensoryPill key="headphones" type="headphones" available={venue.sens_headphones} /> : null,
+    venue.sens_staff_trained ? (
+      <SensoryPill key="staff-trained" type="staff_trained" available={venue.sens_staff_trained} />
+    ) : null,
+    venue.sens_certification ? <SensoryPill key="certified" type="certified" available /> : null,
+    venue.fenced ? <SafetyBadge key="fenced" type="fenced" value={venue.fenced} /> : null,
+    venue.accessible ? <SafetyBadge key="accessible" type="accessible" value={venue.accessible} /> : null,
+    venue.near_water === false ? <SafetyBadge key="near-water" type="near_water" value={false} /> : null,
+  ].filter(Boolean);
 
   return (
     <Link
       href={`/venues/${venue.slug}`}
-      className={cn(
-        'block bg-white rounded-xl border border-gray-200 shadow-sm',
-        'hover:shadow-md hover:border-gray-300 transition-all duration-200',
-        'overflow-hidden group'
-      )}
+      className="venue-card group flex h-full flex-col gap-[14px] rounded-2xl border border-border-subtle bg-cream p-[22px] transition duration-200 hover:-translate-y-0.5 hover:border-calm-teal hover:shadow-[0_8px_24px_rgba(91,184,183,0.12)] dark:border-dark-border dark:bg-dark-card dark:shadow-[0_2px_6px_rgba(0,0,0,0.3)] dark:hover:border-dark-cta-teal dark:hover:shadow-[0_12px_32px_rgba(111,207,206,0.18)]"
     >
-      {/* Header with score and category */}
-      <div className="flex items-start justify-between p-4 pb-3 border-b border-gray-100">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className={cn(
-              'px-2 py-0.5 rounded-full text-xs font-medium',
-              venue.category === 'Park' ? 'bg-green-100 text-green-700' :
-              venue.category === 'Community Centre' ? 'bg-blue-100 text-blue-700' :
-              venue.category === 'Museum' ? 'bg-purple-100 text-purple-700' :
-              venue.category === 'Library' ? 'bg-yellow-100 text-yellow-700' :
-              'bg-gray-100 text-gray-700'
-            )}>
-              {venue.category}
-            </span>
-          </div>
-          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-            {venue.name}
-          </h3>
-        </div>
-        
-        {/* Score Badge */}
-        <div className="flex flex-col items-end gap-1">
-          <div className={cn('flex items-center gap-1 px-2 py-1 rounded-lg text-white text-sm font-bold', getScoreColor(score))}>
-            <span>{score}</span>
-          </div>
-          <span className="text-xs text-gray-500">{getScoreLabel(score)}</span>
-        </div>
+      <div className="flex items-start justify-between gap-3">
+        <span
+          className={cn(
+            'inline-flex items-center rounded-full px-3 py-[5px] text-[12px] font-semibold',
+            categoryStyles[venue.category] ??
+              'bg-[rgba(142,151,163,0.18)] text-[#5F6873] dark:bg-[rgba(142,151,163,0.16)] dark:text-[#D5D9DE]'
+          )}
+        >
+          {venue.category}
+        </span>
+        <span
+          className={cn(
+            'inline-flex items-center rounded-full px-3 py-[5px] text-[11px] font-semibold',
+            tierStyles[tierLabel] ?? tierStyles['Help us verify']
+          )}
+        >
+          {tierLabel}
+        </span>
       </div>
 
-      {/* Location */}
-      <div className="px-4 py-2 flex items-center gap-1.5 text-sm text-gray-600">
-        <MapPin className="w-4 h-4 flex-shrink-0 text-gray-400" />
-        {(venue.city || venue.address) ? (
-          <span className="truncate">
-            {venue.city}{venue.city && venue.address && ' - '}{venue.address}
+      <div>
+        <h2 className="text-[19px] font-bold leading-[1.3] tracking-[-0.2px] text-charcoal transition group-hover:text-calm-teal dark:text-dark-text-heading dark:group-hover:text-dark-cta-teal">
+          {venue.name}
+        </h2>
+        <div className="mt-1 inline-flex items-start gap-1 text-[13px] font-medium text-mid-gray dark:text-dark-text-muted">
+          <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0" />
+          <span>
+            {[venue.city, venue.address].filter(Boolean).join(' · ') || 'Address details coming soon'}
           </span>
-        ) : (
-          <span className="text-gray-400">Location available</span>
-        )}
-      </div>
-
-      {/* Sensory Badges */}
-      <div className="px-4 py-2 border-t border-gray-100">
-        <div className="flex flex-wrap gap-1.5">
-          <SensoryBadge type="noise" value={venue.sens_noise_1to5} showLabel={false} />
-          <SensoryBadge type="light" value={venue.sens_light_1to5} showLabel={false} />
-          <SensoryBadge type="crowd" value={venue.sens_crowd_1to5} showLabel={false} />
         </div>
       </div>
 
-      {/* Sensory Features */}
-      <div className="px-4 py-2 flex flex-wrap gap-1.5">
-        {venue.sens_quiet_room === true && <SensoryPill type="quiet_room" available={venue.sens_quiet_room} />}
-        {venue.sens_headphones === true && <SensoryPill type="headphones" available={venue.sens_headphones} />}
-        {venue.sens_staff_trained === true && <SensoryPill type="staff_trained" available={venue.sens_staff_trained} />}
-        {venue.sens_certification && <SensoryPill type="certified" available={true} />}
+      <div className="flex flex-col gap-[9px] border-y border-border-subtle py-3 dark:border-dark-border">
+        <SensoryDots label="Quiet" emoji="🤫" value={venue.sens_noise_1to5} />
+        <SensoryDots label="Calm light" emoji="💡" value={venue.sens_light_1to5} />
+        <SensoryDots label="Low crowd" emoji="👥" value={venue.sens_crowd_1to5} />
       </div>
 
-      {/* Safety Warnings */}
-      <div className="px-4 py-2">
-        {venue.near_water === true && venue.fenced !== true && (
-          <WarningBadge message="Near water - supervise children" />
-        )}
-        {venue.accessible === true && (
-          <SafetyBadge type="accessible" value={venue.accessible} />
-        )}
-        {venue.fenced === true && (
-          <SafetyBadge type="fenced" value={venue.fenced} />
-        )}
-        {venue.equipment_height && (
-          <SafetyBadge type="equipment_height" value={undefined} heightValue={venue.equipment_height} />
-        )}
-      </div>
+      {activeAmenities.length > 0 ? <div className="flex flex-wrap gap-2">{activeAmenities}</div> : null}
 
-      {/* AI Summary Preview */}
-      {venue.ai_accessibility_summary && (
-        <div className="px-4 py-2 border-t border-gray-100">
-          <p className="text-xs text-gray-500 line-clamp-2">
-            {venue.ai_accessibility_summary}
-          </p>
-        </div>
-      )}
-
-      {/* Footer with voting and website */}
-      <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-        {/* Voting */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              onUpvote?.(venue.slug);
-            }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-emerald-100 hover:text-emerald-700 transition-colors"
-          >
-            <ThumbsUp className="w-4 h-4" />
-            <span className="text-sm font-medium">{upvotes}</span>
-          </button>
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              onDownvote?.(venue.slug);
-            }}
-            className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-red-100 hover:text-red-700 transition-colors"
-          >
-            <ThumbsDown className="w-4 h-4" />
-            <span className="text-sm font-medium">{downvotes}</span>
-          </button>
-        </div>
-
-        {/* Website Link */}
-        {venue.website && (
-          <a
-            href={venue.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
-          >
-            <span className="hidden sm:inline">Website</span>
-            <ExternalLink className="w-4 h-4" />
-          </a>
-        )}
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 text-[12px] font-medium text-mid-gray dark:text-dark-text-muted">
+        <span>{totalCommunityVotes} community votes</span>
+        <span className="inline-flex items-center gap-1 text-mid-gray dark:text-dark-text-muted">
+          {venue.google_rating ? (
+            <>
+              <span className="text-warm-mustard">★</span>
+              <strong className="font-semibold text-charcoal dark:text-dark-text-heading">
+                {venue.google_rating.toFixed(1)}
+              </strong>
+              <span>· {venue.google_review_count ?? 0} Google reviews</span>
+            </>
+          ) : (
+            <span>No Google reviews yet</span>
+          )}
+        </span>
       </div>
     </Link>
   );
 }
 
-interface VenueCardSkeletonProps {
-  className?: string;
-}
+function SensoryDots({
+  label,
+  emoji,
+  value,
+}: {
+  label: string;
+  emoji: string;
+  value: number | null;
+}) {
+  const display = getDisplaySensoryValue(value);
 
-export function VenueCardSkeleton({ className }: VenueCardSkeletonProps) {
   return (
-    <div className={cn('bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden animate-pulse', className)}>
-      <div className="p-4 pb-3 border-b border-gray-100">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="h-5 w-20 bg-gray-200 rounded-full" />
-        </div>
-        <div className="h-6 w-3/4 bg-gray-200 rounded" />
+    <div className="flex items-center gap-[10px] text-[13px] text-charcoal dark:text-dark-text-primary">
+      <span className="w-5 text-center text-[14px]">{emoji}</span>
+      <span className="min-w-[50px] text-[11px] font-medium uppercase tracking-[0.2px] text-mid-gray dark:text-dark-text-dim">
+        {label}
+      </span>
+      <div className="flex flex-1 items-center gap-1">
+        {Array.from({ length: 5 }).map((_, index) => {
+          const filled = display !== null && index < display;
+          const filledClass =
+            display !== null && display >= 4
+              ? 'bg-gentle-green'
+              : display === 3
+                ? 'bg-warm-mustard'
+                : 'bg-soft-peach';
+
+          return (
+            <span
+              key={`${label}-${index}`}
+              className={cn(
+                'h-[13px] w-[13px] rounded-full',
+                filled ? filledClass : 'bg-[#E0E5E0] dark:bg-[#3A4A50]'
+              )}
+            />
+          );
+        })}
       </div>
-      <div className="px-4 py-3">
-        <div className="flex gap-2">
-          <div className="h-6 w-16 bg-gray-200 rounded-full" />
-          <div className="h-6 w-16 bg-gray-200 rounded-full" />
-          <div className="h-6 w-16 bg-gray-200 rounded-full" />
-        </div>
-      </div>
-      <div className="px-4 py-3 bg-gray-50">
-        <div className="flex gap-3">
-          <div className="h-5 w-12 bg-gray-200 rounded" />
-          <div className="h-5 w-12 bg-gray-200 rounded" />
-        </div>
-      </div>
+      <span className="w-[26px] text-right text-[11px] font-semibold text-mid-gray dark:text-dark-text-muted">
+        {display ?? 0}/5
+      </span>
     </div>
   );
 }
