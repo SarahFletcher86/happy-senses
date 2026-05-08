@@ -120,7 +120,7 @@ export function DirectoryFilters({
                 'filter-chip inline-flex items-center gap-1.5 rounded-full border px-4 py-[9px] text-[13px] font-medium',
                 active
                   ? 'filter-chip--active border-calm-teal bg-calm-teal text-[#0E1417] dark:border-dark-cta-teal dark:bg-dark-cta-teal dark:text-[#0E1417]'
-                  : 'border-border-subtle bg-light-cream text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-[#3A4A50] dark:bg-[#2A3540] dark:text-[#F2EBDD] dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
+                  : 'border-[rgba(91,184,183,0.18)] bg-[rgba(91,184,183,0.08)] text-[#2F7372] hover:border-calm-teal hover:bg-[rgba(91,184,183,0.14)] hover:text-calm-teal dark:border-[rgba(91,184,183,0.22)] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#A3DEDD] dark:hover:border-dark-cta-teal dark:hover:bg-[rgba(91,184,183,0.16)] dark:hover:text-dark-cta-teal'
               )}
             >
               <span>{filter.icon}</span>
