@@ -52,6 +52,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "single-file-cli": "^2.0.83",
     "tailwindcss": "^4.1.11",
     "typescript": "^5"
   },
