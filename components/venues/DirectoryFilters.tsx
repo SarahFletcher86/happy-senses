@@ -52,7 +52,7 @@ export function DirectoryFilters({
   return (
     <section
       className={cn(
-        'search-container rounded-2xl border border-border-subtle bg-white p-5 shadow-[0_2px_10px_rgba(44,51,56,0.03)] dark:border-dark-border dark:bg-dark-card',
+        'search-container rounded-2xl border border-border-subtle bg-cream p-5 shadow-[0_2px_10px_rgba(44,51,56,0.03)] dark:border-dark-border dark:bg-dark-card',
         className
       )}
     >

@@ -86,14 +86,14 @@ export async function fetchApprovedNotes(recordId: string): Promise<VenueNote[]>
     filterByFormula: `AND({status}='Approved', FIND(${quoteFormulaValue(
       recordId
     )}, ARRAYJOIN({venue} & '')))`,
-    sort: [{ field: 'Created', direction: 'desc' }],
+    sort: [{ field: 'submitted_at', direction: 'desc' }],
   });
 
   return notes.map((note) => ({
     id: note.id,
     displayName: String(note.fields.submitter_name ?? 'Anonymous'),
     noteText: String(note.fields.note_text ?? ''),
-    createdAt: String(note.fields.Created ?? note.fields.created_at ?? new Date(0).toISOString()),
+    createdAt: String(note.fields.submitted_at ?? new Date(0).toISOString()),
     upvotes: Number(note.fields.upvotes ?? 0),
     downvotes: Number(note.fields.downvotes ?? 0),
   }));

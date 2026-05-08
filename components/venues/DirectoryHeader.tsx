@@ -38,7 +38,7 @@ export function DirectoryHeader({ venueCount }: DirectoryHeaderProps) {
             </Link>
             <Link
               href="/add-venue"
-              className="inline-flex items-center gap-1.5 rounded-[10px] border border-calm-teal bg-calm-teal px-[18px] py-[9px] text-[13px] font-semibold text-white hover:bg-calm-teal-deep dark:border-dark-cta-teal dark:bg-dark-cta-teal dark:text-[#14201F] dark:shadow-[0_2px_8px_rgba(111,207,206,0.3)] dark:hover:bg-[#8FE0DF]"
+              className="cta-add-venue inline-flex items-center gap-1.5 rounded-[10px] border border-calm-teal bg-calm-teal px-[18px] py-[9px] text-[13px] font-semibold text-white hover:bg-calm-teal-deep dark:border-dark-cta-teal dark:bg-dark-cta-teal dark:text-[#14201F] dark:shadow-[0_2px_8px_rgba(111,207,206,0.3)] dark:hover:bg-[#8FE0DF]"
             >
               + Add a Venue
             </Link>

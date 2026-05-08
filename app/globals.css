@@ -12,7 +12,7 @@
     --light-sky-blue: #B8DDE8;
     --charcoal: #2C3338;
     --mid-gray: #8E97A3;
-    --cream: #FFFCF7;
+    --cream: #FBF4E0;
     --light-cream: #FBF8F2;
     --border-subtle: rgba(44, 51, 56, 0.08);
     --dark-bg: #1A1F23;
@@ -127,6 +127,16 @@
     border-color: var(--dark-cta-teal);
   }
 
+  .cta-add-venue {
+    background-color: var(--calm-teal);
+    color: white;
+    border-color: var(--calm-teal);
+  }
+
+  .cta-add-venue:hover {
+    background-color: var(--calm-teal-deep);
+  }
+
   .venue-card {
     background: var(--cream);
     color: #1A2024;
@@ -173,6 +183,18 @@
     background: #6FCFCE;
     color: #0E1417;
     border-color: #6FCFCE;
+  }
+
+  .dark .cta-add-venue,
+  [data-theme='dark'] .cta-add-venue {
+    background-color: var(--dark-cta-teal);
+    color: #14201F;
+    border-color: var(--dark-cta-teal);
+  }
+
+  .dark .cta-add-venue:hover,
+  [data-theme='dark'] .cta-add-venue:hover {
+    background-color: #8FE0DF;
   }
 
   .dark .venue-card,
