@@ -49,3 +49,5 @@ export const metadata = {
   description:
     'Explore sensory-friendly community spaces with calmer lighting, quieter environments, and accessibility details for families.',
 };
+
+export const revalidate = 3600;

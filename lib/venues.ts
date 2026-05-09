@@ -3,7 +3,6 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { z } from 'zod';
 import {
-  fetchApprovedNotes,
   isAirtableConfigured,
 } from './airtable';
 import {
@@ -329,10 +328,6 @@ function getAirtableConfig() {
   };
 }
 
-function quoteFormulaValue(value: string): string {
-  return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
-}
-
 function buildAirtableHeaders(pat: string) {
   return { Authorization: `Bearer ${pat}` };
 }
@@ -367,7 +362,7 @@ async function loadVenuesFromAirtable(): Promise<Venue[]> {
 
     const res = await fetch(url.toString(), {
       headers: buildAirtableHeaders(pat),
-      next: { revalidate: 300, tags: ['venues'] },
+      next: { revalidate: 3600, tags: ['venues'] },
     });
 
     if (!res.ok) {
@@ -418,36 +413,71 @@ export async function getAllVenues(): Promise<Venue[]> {
 }
 
 export async function getVenueBySlug(slug: string): Promise<Venue | null> {
-  if (isAirtableConfigured()) {
-    try {
-      const { baseId, venuesTableId, pat } = getAirtableConfig();
-      const url = new URL(`${AIRTABLE_API}/${baseId}/${venuesTableId}`);
-      url.searchParams.set(
-        'filterByFormula',
-        `AND({published}=TRUE(), {slug}=${quoteFormulaValue(slug)})`
-      );
-      url.searchParams.set('maxRecords', '1');
+  const venues = await loadVenues();
+  return venues.find((venue) => venue.slug === slug) ?? null;
+}
+
+export async function getApprovedNotesGroupedByRecordId(): Promise<Map<string, VenueNote[]>> {
+  if (!isAirtableConfigured()) {
+    return new Map();
+  }
+
+  try {
+    const { baseId, pat } = getAirtableConfig();
+    const notesTableId = process.env.AIRTABLE_NOTES_TABLE_ID;
+    if (!notesTableId) {
+      return new Map();
+    }
+
+    const grouped = new Map<string, VenueNote[]>();
+    let offset: string | undefined;
+
+    do {
+      const url = new URL(`${AIRTABLE_API}/${baseId}/${notesTableId}`);
+      url.searchParams.set('pageSize', '100');
+      url.searchParams.set('filterByFormula', `{status}='Approved'`);
+      url.searchParams.set('sort[0][field]', 'submitted_at');
+      url.searchParams.set('sort[0][direction]', 'desc');
+      if (offset) {
+        url.searchParams.set('offset', offset);
+      }
 
       const res = await fetch(url.toString(), {
         headers: buildAirtableHeaders(pat),
-        next: { revalidate: 300, tags: [`venue:${slug}`] },
+        next: { revalidate: 3600, tags: ['notes'] },
       });
 
-      if (res.ok) {
-        const data = (await res.json()) as { records?: AirtableRecord[] };
-        const record = data.records?.[0];
-        if (record) {
-          return mapAirtableRecordToVenue(record);
-        }
-        return null;
+      if (!res.ok) {
+        console.warn(`[notes] batch fetch failed with ${res.status}`);
+        return grouped;
       }
-    } catch (error) {
-      console.warn('[venues] Failed to load venue by slug from Airtable, using cached data.', error);
-    }
-  }
 
-  const venues = await loadVenues();
-  return venues.find((venue) => venue.slug === slug) ?? null;
+      const data = (await res.json()) as { records?: AirtableRecord[]; offset?: string };
+      for (const record of data.records ?? []) {
+        const venueIds = (record.fields?.venue as string[] | undefined) ?? [];
+        const note: VenueNote = {
+          id: record.id,
+          displayName: String(record.fields?.submitter_name ?? 'Anonymous'),
+          noteText: String(record.fields?.note_text ?? ''),
+          createdAt: String(record.fields?.submitted_at ?? new Date(0).toISOString()),
+          upvotes: Number(record.fields?.upvotes ?? 0),
+          downvotes: Number(record.fields?.downvotes ?? 0),
+        };
+
+        for (const venueId of venueIds) {
+          const list = grouped.get(venueId) ?? [];
+          list.push(note);
+          grouped.set(venueId, list);
+        }
+      }
+      offset = data.offset;
+    } while (offset);
+
+    return grouped;
+  } catch (error) {
+    console.warn('[notes] grouped fetch failed', error);
+    return new Map();
+  }
 }
 
 export async function getCategories(): Promise<string[]> {
@@ -461,17 +491,14 @@ export async function getCities(): Promise<string[]> {
 }
 
 export async function getApprovedNotesBySlug(slug: string): Promise<VenueNote[]> {
-  const venue = await getVenueBySlug(slug);
-  if (!venue?.recordId || !isAirtableConfigured()) {
+  const venues = await loadVenues();
+  const venue = venues.find((item) => item.slug === slug);
+  if (!venue?.recordId) {
     return [];
   }
 
-  try {
-    return await fetchApprovedNotes(venue.recordId);
-  } catch (error) {
-    console.warn('[venues] Failed to load approved notes.', error);
-    return [];
-  }
+  const grouped = await getApprovedNotesGroupedByRecordId();
+  return grouped.get(venue.recordId) ?? [];
 }
 
 export { filterVenues, sortVenues } from './venue-filters';

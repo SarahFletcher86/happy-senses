@@ -31,7 +31,7 @@ interface VenueDetailPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const revalidate = 300;
+export const revalidate = 3600;
 export const dynamicParams = true;
 
 const categoryStyles: Record<string, string> = {
@@ -54,16 +54,9 @@ const tierStyles: Record<string, string> = {
 
 export async function generateStaticParams() {
   const venues = await getAllVenues();
-  const topVenues = venues
-    .filter((venue) => venue.published)
-    .sort((a, b) => {
-      const upvoteDiff = (b.community_upvotes ?? 0) - (a.community_upvotes ?? 0);
-      if (upvoteDiff !== 0) return upvoteDiff;
-      return (b.google_review_count ?? 0) - (a.google_review_count ?? 0);
-    })
-    .slice(0, 50);
-
-  return topVenues.map((venue) => ({ slug: venue.slug }));
+  return venues
+    .filter((venue) => venue.published && venue.slug)
+    .map((venue) => ({ slug: venue.slug }));
 }
 
 export default async function VenueDetailPage({ params }: VenueDetailPageProps) {
