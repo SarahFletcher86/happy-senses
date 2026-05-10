@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ThumbsDown, ThumbsUp } from 'lucide-react';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import type { VenueNote } from '@/lib/types';
 
 interface VenueDetailClientProps {
@@ -76,7 +76,7 @@ export function VenueDetailClient({
     <>
       <div className="detail-section rounded-[28px] border border-border-subtle bg-cream p-5 shadow-card dark:border-dark-border dark:bg-dark-card">
         <p className="text-sm font-semibold uppercase tracking-[0.14em] text-mid-gray dark:text-dark-text-muted">
-          Was this helpful?
+          Did the rating match your experience?
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
@@ -84,16 +84,16 @@ export function VenueDetailClient({
             onClick={() => handleVote('up')}
             className="inline-flex items-center gap-2 rounded-full bg-[rgba(168,216,168,0.22)] px-4 py-2 font-semibold text-[#3F7A3F] dark:bg-[rgba(168,216,168,0.12)] dark:text-[#B5DCB5]"
           >
-            <ThumbsUp className="h-4 w-4" />
-            {upvotes}
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Yes · {upvotes}</span>
           </button>
           <button
             type="button"
             onClick={() => handleVote('down')}
             className="inline-flex items-center gap-2 rounded-full bg-[rgba(244,168,146,0.22)] px-4 py-2 font-semibold text-[#B25938] dark:bg-[rgba(244,168,146,0.12)] dark:text-[#F8C4B0]"
           >
-            <ThumbsDown className="h-4 w-4" />
-            {downvotes}
+            <AlertCircle className="h-4 w-4" />
+            <span>Not quite · {downvotes}</span>
           </button>
         </div>
       </div>
