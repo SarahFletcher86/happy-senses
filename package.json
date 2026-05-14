@@ -8,7 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:all": "echo \"No tests configured\""
+    "test:all": "echo \"No tests configured\"",
+    "enrich": "dotenv -e .env.local -- npx ts-node --esm scripts/enrichment/run-all.ts",
+    "enrich:phase1": "dotenv -e .env.local -- npx ts-node --esm scripts/enrichment/phase1-google-places.ts",
+    "enrich:phase2": "dotenv -e .env.local -- npx ts-node --esm scripts/enrichment/phase2-osm-scrape.ts",
+    "enrich:phase3": "dotenv -e .env.local -- python3 scripts/enrichment/phase3-crawl4ai.py",
+    "enrich:phase4": "dotenv -e .env.local -- npx ts-node --esm scripts/enrichment/phase4-ai-screen.ts",
+    "enrich:phase5": "dotenv -e .env.local -- npx ts-node --esm scripts/enrichment/phase5-airtable-push.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.1",
@@ -45,14 +51,17 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@googlemaps/places": "^1.5.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^7.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4.1.11",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   },
   "description": "Chat with AI to build React apps instantly. An example app made by the [Firecrawl](https://firecrawl.dev/?ref=open-lovable-github) team. For a complete cloud solution, check out [Lovable.dev ❤️](https://lovable.dev/).",
