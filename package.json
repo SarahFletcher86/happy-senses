@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:all": "echo \"No tests configured\""
+    "test:all": "echo \"No tests configured\"",
+    "bulk-strategy": "tsx scripts/bulk-strategy/run.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.1",
@@ -53,6 +54,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4.1.11",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   },
   "description": "Chat with AI to build React apps instantly. An example app made by the [Firecrawl](https://firecrawl.dev/?ref=open-lovable-github) team. For a complete cloud solution, check out [Lovable.dev ❤️](https://lovable.dev/).",
