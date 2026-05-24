@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { HappySensesLogo } from '@/components/HappySensesLogo';
-import { ThemeControls } from '@/components/venues/ThemeControls';
+import { SiteFooter } from '@/components/venues/SiteFooter';
+import { SiteHeader } from '@/components/venues/SiteHeader';
 
 export const metadata: Metadata = {
   title: 'Accessibility — Happy Senses',
@@ -62,47 +61,7 @@ export default function AccessibilityPage() {
         Skip to main content
       </a>
 
-      <header className="border-b border-[var(--border-subtle)] bg-[var(--cream)] dark:border-[var(--dark-border)] dark:bg-[var(--dark-bg)]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 pb-6 pt-8 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex items-center gap-4">
-            <HappySensesLogo size={56} className="rounded-2xl" />
-            <div>
-              <div className="text-[28px] font-semibold tracking-[-0.4px] text-charcoal dark:text-dark-text-heading">
-                Happy Senses
-              </div>
-              <p className="text-[13px] font-medium text-mid-gray dark:text-dark-text-muted">
-                Sensory-friendly spaces for everyone
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-start gap-3 xl:items-end">
-            <nav
-              aria-label="Primary"
-              className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[15px] font-medium text-charcoal dark:text-dark-text-heading"
-            >
-              <Link href="/">Directory</Link>
-              <a href="https://blog.happysenses.ca" target="_blank" rel="noreferrer">
-                The Journal
-              </a>
-              <Link href="/about">About</Link>
-              <a href="/#resources">Resources</a>
-            </nav>
-
-            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center xl:justify-end">
-              <ThemeControls />
-              <a
-                href="https://blog.happysenses.ca"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-[999px] border border-[var(--calm-teal)] bg-[var(--calm-teal)] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[var(--calm-teal-deep)] dark:border-[var(--dark-cta-teal)] dark:bg-[var(--dark-cta-teal)] dark:text-[#14201F] dark:hover:bg-[#8FE0DF]"
-              >
-                Get the Newsletter
-              </a>
-            </div>
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main id="main-content" className="mx-auto max-w-7xl px-4 py-10 md:py-14">
         <div className="space-y-6 md:space-y-8">
@@ -170,53 +129,7 @@ export default function AccessibilityPage() {
         </div>
       </main>
 
-      <footer className="border-t border-[var(--border-subtle)] bg-[var(--cream)] dark:border-[var(--dark-border)] dark:bg-[var(--dark-bg)]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.25fr_repeat(3,minmax(0,1fr))]">
-          <div className="flex items-start gap-4">
-            <HappySensesLogo size={56} className="rounded-2xl" />
-            <p className="max-w-[220px] text-lg leading-8 text-charcoal dark:text-dark-text-primary">
-              A community-curated directory of sensory-friendly spaces.
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-charcoal dark:text-dark-text-heading">
-              Explore
-            </h2>
-            <div className="mt-4 grid gap-3 text-lg text-mid-gray dark:text-dark-text-muted">
-              <Link href="/">Directory</Link>
-              <a href="https://blog.happysenses.ca" target="_blank" rel="noreferrer">
-                The Journal
-              </a>
-              <a href="https://blog.happysenses.ca" target="_blank" rel="noreferrer">
-                Newsletter
-              </a>
-              <Link href="/add-venue">Add a Venue</Link>
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-charcoal dark:text-dark-text-heading">
-              Trust
-            </h2>
-            <div className="mt-4 grid gap-3 text-lg text-mid-gray dark:text-dark-text-muted">
-              <Link href="/accessibility">Accessibility</Link>
-              <a href="/privacy">Privacy</a>
-              <a href="/community-guidelines">Community Guidelines</a>
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-[28px] font-semibold tracking-[-0.03em] text-charcoal dark:text-dark-text-heading">
-              Get in touch
-            </h2>
-            <div className="mt-4 grid gap-3 text-lg text-mid-gray dark:text-dark-text-muted">
-              <a href="mailto:sarah@happysenses.ca">Contact</a>
-              <Link href="/add-venue">Submissions</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
