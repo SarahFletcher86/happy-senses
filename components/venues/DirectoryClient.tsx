@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { DirectoryHeader } from '@/components/venues/DirectoryHeader';
 import { DirectoryFilters } from '@/components/venues/DirectoryFilters';
+import { SiteFooter } from '@/components/venues/SiteFooter';
 import { VenueCardGrid } from '@/components/venues/VenueCardGrid';
 import { filterVenues, sortVenues } from '@/lib/venue-filters';
 import type { SortOption, Venue, VenueFilters } from '@/lib/types';
@@ -111,18 +112,7 @@ export function DirectoryClient({
         </div>
       </div>
 
-      <footer className="mt-12 border-t border-border-subtle bg-cream dark:border-dark-border dark:bg-dark-bg">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm text-mid-gray dark:text-dark-text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p>Sensory-friendly spaces for everyone</p>
-          <div className="flex flex-wrap items-center gap-4">
-            <a href="/about">About</a>
-            <a href="/add-venue">Add a Venue</a>
-            <a href="/accessibility">Accessibility</a>
-            <a href="/privacy">Privacy</a>
-            <a href="/certify">Get certified</a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
