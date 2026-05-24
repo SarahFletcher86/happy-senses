@@ -161,6 +161,11 @@
     color: #1A2024;
   }
 
+  .header-toggle-chip:focus {
+    outline: 2px solid var(--calm-teal);
+    outline-offset: 2px;
+  }
+
   .detail-section {
     background: var(--cream);
     color: #1A2024;
@@ -231,6 +236,11 @@
     background: #2A3540;
     color: #F2EBDD;
     border-color: #3A4A50;
+  }
+
+  .dark .header-toggle-chip:focus,
+  [data-theme='dark'] .header-toggle-chip:focus {
+    outline-color: var(--dark-cta-teal);
   }
 
   .dark .filter-chip--active,

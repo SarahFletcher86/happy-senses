@@ -34,10 +34,10 @@ export function ThemeControls() {
         onClick={toggleReadingMode}
         aria-pressed={isEasierReading}
         className={cn(
-          'theme-toggle-pill inline-flex items-center gap-1.5 rounded-[10px] border px-[18px] py-[9px] text-[13px] font-semibold',
+          'filter-chip header-toggle-chip inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-[9px] text-[13px] font-medium',
           isEasierReading
-            ? 'theme-toggle-pill--active border-calm-teal bg-calm-teal text-[#0E1417]'
-            : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-[#3A4A50] dark:bg-transparent dark:text-[#F2EBDD] dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
+            ? 'filter-chip--active border-calm-teal bg-calm-teal text-[#0E1417]'
+            : 'border-[rgba(91,184,183,0.18)] bg-[rgba(91,184,183,0.08)] text-[#2F7372] hover:border-calm-teal hover:bg-[rgba(91,184,183,0.14)] hover:text-calm-teal dark:border-[rgba(91,184,183,0.22)] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#A3DEDD] dark:hover:border-dark-cta-teal dark:hover:bg-[rgba(91,184,183,0.16)] dark:hover:text-dark-cta-teal'
         )}
       >
         <span aria-hidden="true" className="inline-block">
@@ -50,10 +50,10 @@ export function ThemeControls() {
         onClick={toggleDarkMode}
         aria-pressed={isDark}
         className={cn(
-          'theme-toggle-pill inline-flex items-center gap-1.5 rounded-[10px] border px-[18px] py-[9px] text-[13px] font-semibold',
+          'filter-chip header-toggle-chip inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-[9px] text-[13px] font-medium',
           isDark
-            ? 'theme-toggle-pill--active border-dark-cta-teal bg-dark-cta-teal text-[#0E1417] shadow-[0_2px_8px_rgba(111,207,206,0.3)] hover:bg-[#8FE0DF]'
-            : 'border-border-subtle bg-white text-charcoal hover:border-calm-teal hover:text-calm-teal dark:border-[#3A4A50] dark:bg-transparent dark:text-[#F2EBDD] dark:hover:border-dark-cta-teal dark:hover:text-dark-cta-teal'
+            ? 'filter-chip--active border-dark-cta-teal bg-dark-cta-teal text-[#0E1417] shadow-[0_2px_8px_rgba(111,207,206,0.3)] hover:bg-[#8FE0DF]'
+            : 'border-[rgba(91,184,183,0.18)] bg-[rgba(91,184,183,0.08)] text-[#2F7372] hover:border-calm-teal hover:bg-[rgba(91,184,183,0.14)] hover:text-calm-teal dark:border-[rgba(91,184,183,0.22)] dark:bg-[rgba(91,184,183,0.10)] dark:text-[#A3DEDD] dark:hover:border-dark-cta-teal dark:hover:bg-[rgba(91,184,183,0.16)] dark:hover:text-dark-cta-teal'
         )}
       >
         {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

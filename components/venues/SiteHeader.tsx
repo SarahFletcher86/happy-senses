@@ -22,7 +22,7 @@ function NewsletterLink({ onClick }: { onClick?: () => void }) {
       target="_blank"
       rel="noreferrer"
       onClick={onClick}
-      className="inline-flex items-center justify-center gap-1.5 rounded-[999px] border border-[var(--calm-teal)] bg-[var(--calm-teal)] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[var(--calm-teal-deep)] dark:border-[var(--dark-cta-teal)] dark:bg-[var(--dark-cta-teal)] dark:text-[#14201F] dark:hover:bg-[#8FE0DF]"
+      className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-[999px] border border-[var(--calm-teal)] bg-[var(--calm-teal)] px-7 py-3 text-center text-[15px] font-semibold leading-none text-white transition hover:bg-[var(--calm-teal-deep)] dark:border-[var(--dark-cta-teal)] dark:bg-[var(--dark-cta-teal)] dark:text-[#14201F] dark:hover:bg-[#8FE0DF]"
     >
       Get the Newsletter
     </a>
