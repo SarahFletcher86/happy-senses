@@ -117,6 +117,7 @@ export function DirectoryClient({
           <div className="flex flex-wrap items-center gap-4">
             <a href="/about">About</a>
             <a href="/add-venue">Add a Venue</a>
+            <a href="/accessibility">Accessibility</a>
             <a href="/privacy">Privacy</a>
             <a href="/certify">Get certified</a>
           </div>
