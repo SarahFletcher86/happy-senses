@@ -31,6 +31,8 @@ export async function POST(request: Request): Promise<NextResponse<VoteResponse>
     const updated = await incrementVote(venue.recordId, type);
     revalidateTag(`venue:${body.slug}`, 'max');
     revalidateTag('venues', 'max');
+    revalidateTag('featured-venues', 'max');
+    revalidateTag('city-counts', 'max');
     return NextResponse.json({
       success: true,
       upvotes: updated.upvotes,
