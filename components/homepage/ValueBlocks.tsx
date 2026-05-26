@@ -43,7 +43,7 @@ const blocks = [
 
 export function ValueBlocks() {
   return (
-    <section className="bg-[var(--cream)] px-4 py-16 md:py-24 dark:bg-[#1A2024]">
+    <section className="bg-[var(--cream)] px-4 py-20 md:py-28 dark:bg-[#1A2024]">
       <div className="mx-auto max-w-6xl">
         <p className="mb-4 text-center text-[13px] font-semibold uppercase tracking-[0.15em] text-[var(--mid-gray)] dark:text-[#9AA8A6]">
           How this works
@@ -52,7 +52,7 @@ export function ValueBlocks() {
           Different kind of directory.
         </h2>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
           {blocks.map((block) => {
             const Icon = block.icon;
             return (

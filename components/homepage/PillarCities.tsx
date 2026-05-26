@@ -19,7 +19,7 @@ const cities = [
 
 export function PillarCities({ cityCounts }: PillarCitiesProps) {
   return (
-    <section className="bg-[var(--mint)] px-4 py-16 md:py-24 dark:bg-[#141A20]">
+    <section className="bg-[var(--mint)] px-4 py-20 md:py-28 dark:bg-[#141A20]">
       <div className="mx-auto max-w-6xl">
         <p className="mb-4 text-center text-[13px] font-semibold uppercase tracking-[0.15em] text-[var(--mid-gray)] dark:text-[#9AA8A6]">
           Browse by city
@@ -32,7 +32,7 @@ export function PillarCities({ cityCounts }: PillarCitiesProps) {
           how we grow.
         </p>
 
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {cities.map((city) => {
             const count = city.count(cityCounts);
             return (
@@ -47,12 +47,15 @@ export function PillarCities({ cityCounts }: PillarCitiesProps) {
                 <p className="mt-1 text-[13px] font-medium text-[var(--mid-gray)] dark:text-[#ADA590]">
                   {count} venue{count !== 1 ? 's' : ''}
                 </p>
+                <p className="mt-3 text-[13px] font-semibold text-[var(--calm-teal)] transition group-hover:text-[var(--calm-teal-deep)] dark:text-[#6FCFCE] dark:group-hover:text-[#8FE0DF]">
+                  Browse →
+                </p>
               </Link>
             );
           })}
         </div>
 
-        <p className="mx-auto mt-8 max-w-[600px] text-center text-[14px] leading-[1.6] text-[var(--mid-gray)] dark:text-[#ADA590]">
+        <p className="mx-auto mt-12 max-w-[600px] text-center text-[14px] leading-[1.6] text-[var(--mid-gray)] dark:text-[#ADA590]">
           Not your city?{' '}
           <Link href="/submit" className="font-semibold text-[var(--calm-teal)] hover:underline dark:text-[#6FCFCE]">
             Submit a venue you love

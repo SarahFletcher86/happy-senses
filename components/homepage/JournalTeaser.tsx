@@ -10,28 +10,28 @@ const posts: JournalPost[] = [
     tag: 'Guide · 6 min read',
     title: "10 sensory-friendly cafés in Toronto that won't overwhelm you",
     excerpt:
-      'Where to find calm light, quiet corners, and staff who don&rsquo;t blink when you ask about noise.',
+      'Where to find calm light, quiet corners, and staff who don’t blink when you ask about noise.',
     date: 'May 21, 2026',
   },
   {
     tag: 'Story · 4 min read',
     title: "The hairdresser who finally got my son's haircut right",
     excerpt:
-      'The thing nobody tells you: it&rsquo;s the ten minutes before the chair that matters more than the cut itself.',
+      'The thing nobody tells you: it’s the ten minutes before the chair that matters more than the cut itself.',
     date: 'May 14, 2026',
   },
   {
     tag: 'Tool · 3 min read',
     title: 'Loop earplugs, one year in: what we actually wear them for',
     excerpt:
-      'Not a sponsored review. A real account of which pairs we reach for, which we lost, and what&rsquo;s worth it.',
+      'Not a sponsored review. A real account of which pairs we reach for, which we lost, and what’s worth it.',
     date: 'May 7, 2026',
   },
 ];
 
 export function JournalTeaser() {
   return (
-    <section className="bg-[var(--mint)] px-4 py-16 md:py-24 dark:bg-[#141A20]">
+    <section className="bg-[var(--mint)] px-4 py-20 md:py-28 dark:bg-[#141A20]">
       <div className="mx-auto max-w-6xl">
         <p className="mb-4 text-center text-[13px] font-semibold uppercase tracking-[0.15em] text-[var(--mid-gray)] dark:text-[#9AA8A6]">
           From The Journal
@@ -40,7 +40,7 @@ export function JournalTeaser() {
           Deeper reads when you have time.
         </h2>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
           {posts.map((post) => (
             <a
               key={post.title}
