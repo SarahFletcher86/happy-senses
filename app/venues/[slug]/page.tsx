@@ -145,7 +145,11 @@ export default async function VenueDetailPage({ params }: VenueDetailPageProps) 
                   <span>· {venue.google_review_count ?? 0} Google reviews</span>
                 </span>
               ) : null}
-              <span>{venue.community_upvotes + venue.community_downvotes} community votes</span>
+              {(venue.community_upvotes ?? 0) + (venue.community_downvotes ?? 0) > 0 ? (
+                <span>
+                  {venue.community_upvotes ?? 0} confirmed · {venue.community_downvotes ?? 0} not quite
+                </span>
+              ) : null}
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
