@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Lexend, Quicksand } from 'next/font/google';
+import { Fraunces, Lexend, Quicksand } from 'next/font/google';
 import './globals.css';
 
 const quicksand = Quicksand({
@@ -12,6 +12,13 @@ const lexend = Lexend({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-lexend',
+});
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-fraunces',
 });
 
 const themeInitScript = `
@@ -43,8 +50,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${quicksand.variable} ${lexend.variable}`}>
-      <body className="bg-cream font-sans text-charcoal antialiased dark:bg-dark-bg dark:text-dark-text-primary">
+    <html lang="en" suppressHydrationWarning className={`${quicksand.variable} ${lexend.variable} ${fraunces.variable}`}>
+      <body className="font-sans text-charcoal antialiased dark:bg-[#141A20] dark:text-dark-text-primary">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}
       </body>

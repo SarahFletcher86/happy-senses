@@ -7,22 +7,17 @@ import { HappySensesLogo } from '@/components/HappySensesLogo';
 import { ThemeControls } from './ThemeControls';
 
 const navLinks = [
-  { href: '/', label: 'Directory' },
+  { href: '/directory', label: 'Directory' },
   { href: 'https://blog.happysenses.ca', label: 'The Journal', external: true },
   { href: '/about', label: 'About' },
-  { href: '/#resources', label: 'Resources' },
 ];
-
-const newsletterHref = 'https://blog.happysenses.ca';
 
 function NewsletterLink({ onClick }: { onClick?: () => void }) {
   return (
     <a
-      href={newsletterHref}
-      target="_blank"
-      rel="noreferrer"
+      href="/#newsletter"
       onClick={onClick}
-      className="inline-flex items-center justify-center gap-1.5 rounded-[999px] border border-[var(--calm-teal)] bg-[var(--calm-teal)] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[var(--calm-teal-deep)] dark:border-[var(--dark-cta-teal)] dark:bg-[var(--dark-cta-teal)] dark:text-[#14201F] dark:hover:bg-[#8FE0DF]"
+      className="inline-flex items-center justify-center gap-1.5 rounded-[999px] border border-[var(--calm-teal)] bg-[var(--calm-teal)] px-6 py-3 text-[15px] font-semibold text-white transition hover:bg-[var(--calm-teal-deep)] dark:border-[var(--dark-cta-teal)] dark:bg-[var(--dark-cta-teal)] dark:text-[#141A20] dark:hover:bg-[#8FE0DF]"
     >
       Get the Newsletter
     </a>
@@ -113,11 +108,11 @@ export function SiteHeader() {
   }, [isMenuOpen]);
 
   return (
-    <header className="border-b border-[var(--border-subtle)] bg-[var(--cream)] dark:border-[var(--dark-border)] dark:bg-[var(--dark-bg)]">
+    <header className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-[var(--cream)] dark:border-[var(--dark-border)] dark:bg-[var(--dark-bg)]">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-6 md:hidden">
         <Link href="/" className="flex items-center gap-3">
           <HappySensesLogo size={44} className="rounded-2xl" />
-          <span className="text-[24px] font-semibold text-charcoal dark:text-dark-text-heading">Happy Senses</span>
+          <span className="font-[family-name:var(--font-fraunces)] text-[24px] font-semibold text-charcoal dark:text-dark-text-heading">Happy Senses</span>
         </Link>
         <button
           ref={menuButtonRef}
@@ -142,7 +137,7 @@ export function SiteHeader() {
         <Link href="/" className="flex items-center gap-4 justify-self-start">
           <HappySensesLogo size={56} className="rounded-2xl" />
           <span>
-            <span className="block text-[28px] font-semibold text-charcoal dark:text-dark-text-heading">
+            <span className="block font-[family-name:var(--font-fraunces)] text-[28px] font-semibold text-charcoal dark:text-dark-text-heading">
               Happy Senses
             </span>
             <span className="block text-[13px] font-medium text-mid-gray dark:text-dark-text-muted">

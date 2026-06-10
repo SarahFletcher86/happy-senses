@@ -29,6 +29,8 @@ export async function POST(request: Request): Promise<NextResponse<NoteResponse>
     await addNote(venue.recordId, body);
     revalidateTag(`venue:${body.slug}`, 'max');
     revalidateTag('venues', 'max');
+    revalidateTag('featured-venues', 'max');
+    revalidateTag('city-counts', 'max');
     const notes = await getApprovedNotesBySlug(body.slug);
     return NextResponse.json({
       success: true,

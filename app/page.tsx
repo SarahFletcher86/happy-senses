@@ -1,51 +1,38 @@
-import { DirectoryClient } from '@/components/venues/DirectoryClient';
-import { getCategories, getCities, loadVenueDataState } from '@/lib/venues';
-import type { SortOption, VenueFilters } from '@/lib/types';
+import { SiteHeader } from '@/components/venues/SiteHeader';
+import { Hero } from '@/components/homepage/Hero';
+import { FeaturedVenues } from '@/components/homepage/FeaturedVenues';
+import { PillarCities } from '@/components/homepage/PillarCities';
+import { ValueBlocks } from '@/components/homepage/ValueBlocks';
+import { NewsletterSignup } from '@/components/homepage/NewsletterSignup';
+import { JournalTeaser } from '@/components/homepage/JournalTeaser';
+import { SiteFooter } from '@/components/venues/SiteFooter';
+import { fetchFeaturedVenues, fetchCityCounts } from '@/lib/featured';
 
-interface HomePageProps {
-  searchParams?: Promise<{
-    search?: string;
-    category?: string;
-    city?: string;
-    sort?: string;
-  }>;
-}
+export default async function HomePage() {
+  const [featuredVenues, cityCounts] = await Promise.all([
+    fetchFeaturedVenues(),
+    fetchCityCounts(),
+  ]);
 
-export default async function HomePage({ searchParams }: HomePageProps) {
-  const params = (await searchParams) ?? {};
-  const venueState = await loadVenueDataState();
-  const categories = await getCategories();
-  const cities = await getCities();
-
-  const filters: VenueFilters = {
-    search: params.search || '',
-    category: params.category || 'All',
-    city: params.city || 'All',
-    sensory_friendly: null,
-    quiet_room: null,
-    headphones: null,
-    staff_trained: null,
-    accessible: null,
-    fenced: null,
-    not_near_water: null,
-  };
-
-  const sortBy: SortOption = (params.sort as SortOption) || 'sensory_score';
+  const totalVenues =
+    cityCounts.toronto + cityCounts.ottawa + cityCounts.gta + cityCounts.kwg + cityCounts.belleville;
 
   return (
-    <DirectoryClient
-      venues={venueState.venues}
-      categories={categories}
-      cities={cities}
-      initialFilters={filters}
-      initialSort={sortBy}
-      warning={venueState.warning}
-    />
+    <main className="min-h-screen">
+      <SiteHeader />
+      <Hero totalVenues={totalVenues} />
+      <FeaturedVenues venues={featuredVenues} />
+      <PillarCities cityCounts={cityCounts} />
+      <ValueBlocks />
+      <NewsletterSignup />
+      <JournalTeaser />
+      <SiteFooter />
+    </main>
   );
 }
 
 export const metadata = {
   title: 'Happy Senses | Sensory-friendly spaces for everyone',
   description:
-    'Explore sensory-friendly community spaces with calmer lighting, quieter environments, and accessibility details for families.',
+    'A directory of cafés, libraries, parks, and places that get it — curated for neurodivergent and sensory-sensitive humans of any age.',
 };
